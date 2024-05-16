@@ -31,7 +31,7 @@
     {
       "type": "wokwi-neopixel-canvas",
       "id": "run4",
-      "top": -340.99,
+      "top": -350.59,
       "left": -903.43,
       "rotate": 342,
       "attrs": { "rows": "72", "cols": "1", "pixelate": "circle", "matrixBrightness": "3.5", "label": "4" }
@@ -204,10 +204,22 @@
       "rotate": 162,
       "attrs": { "rows": "72", "cols": "1", "pixelate": "circle", "matrixBrightness": "3.5", "label": "4" }
     },
-     {
+    {
+      "type": "wokwi-arduino-uno",
+      "id": "uno",
+      "top": -172.2,
+      "left": -368.4,
+      "attrs": { "__fakeRamSize": "100000" }
+    },
+    { "type": "wokwi-slide-switch", "id": "sw1", "top": -216.4, "left": 108.7, "attrs": {} },
+    { "type": "wokwi-slide-switch", "id": "sw2", "top": -216.4, "left": 147.1, "attrs": {} },
+    { "type": "wokwi-slide-switch", "id": "sw3", "top": -216.4, "left": 185.5, "attrs": {} },
+    { "type": "wokwi-slide-switch", "id": "sw4", "top": -216.4, "left": 223.9, "attrs": {} },
+    { "type": "wokwi-slide-switch", "id": "sw5", "top": -216.4, "left": 262.3, "attrs": {} },
+    {
       "type": "wokwi-neopixel-canvas",
       "id": "run21",
-      "top": -1958.21,
+      "top": -1929.41,
       "left": -8364.37,
       "rotate": 162,
       "attrs": { "rows": "72", "cols": "1", "pixelate": "circle", "matrixBrightness": "3.5", "label": "4" }
@@ -215,42 +227,34 @@
     {
       "type": "wokwi-neopixel-canvas",
       "id": "run22",
-      "top": -374.76,
-      "left": -8369.3,
+      "top": -336.36,
+      "left": -8359.7,
       "rotate": 18,
       "attrs": { "rows": "72", "cols": "1", "pixelate": "circle", "matrixBrightness": "3.5", "label": "2" }
     },
     {
       "type": "wokwi-neopixel-canvas",
       "id": "run23",
-      "top": 422.1,
-      "left": -9460.3,
+      "top": 450.9,
+      "left": -9450.7,
       "rotate": 270,
       "attrs": { "rows": "72", "cols": "1", "pixelate": "circle", "matrixBrightness": "3.5", "label": "3" }
     },
     {
       "type": "wokwi-neopixel-canvas",
       "id": "run24",
-      "top": 916.05,
-      "left": -7963.36,
+      "top": 944.85,
+      "left": -7953.76,
       "rotate": 306,
       "attrs": { "rows": "72", "cols": "1", "pixelate": "circle", "matrixBrightness": "3.5", "label": "1" }
     },
     {
       "type": "wokwi-neopixel-canvas",
       "id": "run25",
-      "top": 2188.44,
-      "left": -7514.9,
+      "top": 2226.84,
+      "left": -7543.7,
       "rotate": 18,
       "attrs": { "rows": "72", "cols": "1", "pixelate": "circle", "matrixBrightness": "3.5", "label": "2" }
-    },
-    {
-      "type": "wokwi-neopixel-canvas",
-      "id": "run26",
-      "top": 929.42,
-      "left": -6580.17,
-      "rotate": -126,
-      "attrs": { "rows": "72", "cols": "1", "pixelate": "circle", "matrixBrightness": "3.5" }
     },
     {
       "type": "wokwi-neopixel-canvas",
@@ -285,18 +289,13 @@
       "attrs": { "rows": "72", "cols": "1", "pixelate": "circle", "matrixBrightness": "3.5", "label": "3" }
     },
     {
-      "type": "wokwi-arduino-mega",
-      "id": "uno",
-      "top": -172.2,
-      "left": -368.4,
-      "attrs": { "__fakeRamSize": "80000" }
-    },
-    { "type": "wokwi-slide-switch", "id": "sw1", "top": -216.4, "left": 108.7, "attrs": {} },
-    { "type": "wokwi-slide-switch", "id": "sw2", "top": -216.4, "left": 147.1, "attrs": {} },
-    { "type": "wokwi-slide-switch", "id": "sw3", "top": -216.4, "left": 185.5, "attrs": {} },
-    { "type": "wokwi-slide-switch", "id": "sw4", "top": -216.4, "left": 223.9, "attrs": {} },
-    { "type": "wokwi-slide-switch", "id": "sw5", "top": -216.4, "left": 262.3, "attrs": {} }
-  
+      "type": "wokwi-neopixel-canvas",
+      "id": "run26",
+      "top": 929.42,
+      "left": -6580.17,
+      "rotate": -126,
+      "attrs": { "rows": "72", "cols": "1", "pixelate": "circle", "matrixBrightness": "3.5" }
+    }
   ],
   "connections": [
     [ "uno:GND.1", "bb2:bn.1", "black", [ "v0" ] ],
@@ -322,6 +321,11 @@
     [ "sw5:1", "bb2:bn.13", "black", [ "v0" ] ],
     [ "sw5:3", "bb2:bp.15", "green", [ "v0" ] ],
     [ "uno:7", "run1:DIN", "green", [] ],
+    [ "uno:8", "run6:DIN", "green", [] ],
+    [ "uno:9", "run11:DIN", "green", [] ],
+    [ "uno:10", "run16:DIN", "green", [] ],
+    [ "uno:11", "run21:DIN", "green", [] ],
+    [ "uno:12", "run26:DIN", "green", [] ],
     [
       "run1:VSS",
       "bb2:bp.25",
@@ -338,27 +342,22 @@
     [ "run2:DOUT", "run3:DIN", "green", [] ],
     [ "run3:DOUT", "run4:DIN", "green", [] ],
     [ "run4:DOUT", "run5:DIN", "green", [] ],
-    [ "run5:DOUT", "run6:DIN", "green", [] ],
     [ "run6:DOUT", "run7:DIN", "green", [] ],
     [ "run7:DOUT", "run8:DIN", "green", [] ],
     [ "run8:DOUT", "run9:DIN", "green", [] ],
     [ "run9:DOUT", "run10:DIN", "green", [] ],
-    [ "run10:DOUT", "run11:DIN", "green", [] ],
     [ "run11:DOUT", "run12:DIN", "green", [] ],
     [ "run12:DOUT", "run13:DIN", "green", [] ],
     [ "run13:DOUT", "run14:DIN", "green", [] ],
     [ "run14:DOUT", "run15:DIN", "green", [] ],
-    [ "run15:DOUT", "run16:DIN", "green", [] ],
     [ "run16:DOUT", "run17:DIN", "green", [] ],
     [ "run17:DOUT", "run18:DIN", "green", [] ],
     [ "run18:DOUT", "run19:DIN", "green", [] ],
     [ "run19:DOUT", "run20:DIN", "green", [] ],
-    [ "run20:DOUT", "run21:DIN", "green", [] ],
     [ "run21:DOUT", "run22:DIN", "green", [] ],
     [ "run22:DOUT", "run23:DIN", "green", [] ],
     [ "run23:DOUT", "run24:DIN", "green", [] ],
     [ "run24:DOUT", "run25:DIN", "green", [] ],
-    [ "run25:DOUT", "run26:DIN", "green", [] ],
     [ "run26:DOUT", "run27:DIN", "green", [] ],
     [ "run27:DOUT", "run28:DIN", "green", [] ],
     [ "run28:DOUT", "run29:DIN", "green", [] ],
@@ -366,4 +365,3 @@
   ],
   "dependencies": {}
 }
-
