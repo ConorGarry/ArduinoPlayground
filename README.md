@@ -6,13 +6,17 @@ but for actual dev work I find VSCode with PlatformIO add-on better to work with
 
 - [Official Arduino IDE](https://www.arduino.cc/en/software)
 - [Visual Studio Code](https://code.visualstudio.com/)
-  - Then search for [PlatformIO](https://platformio.org/) in extensions.
+  - [PlatformIO extension](https://platformio.org/)
+  - [Wowki VSCode extension](https://docs.wokwi.com/vscode/getting-started)
 
 [FastLED Library](https://fastled.io/) is the C++ library we're using to control the LEDs, you can install it through the Arduino IDE or PlatformIO.
 
 ## Simulation
 We can simulate the lighting setup using [wokwi.com](https://www.wokwi.com). It's free to start an account and you can create multiple projects.
 Chrome is recommended over other browsers as apparently it yields the best performance. It is quite resource-heavy so I'd recommend closing any applications and tabs that are not being used to free up memory and processing power for the simulator.
+
+### Wokwi VSCode Extension
+We can now use the Wokwi VSCode extension to simulate the lights, which is much more convenient than using the website. It requires a license key but it's free, follow the [steps](https://docs.wokwi.com/vscode/getting-started#installation) here to get up and running. The license expires after 30 days but it's free to renew it.
 
 ## Getting Started
 You don't need a Github but I would recommend it, it's free and it lets you subscribe to changes in the project so you'll get an email whenever there's a change, but if you don't want to start one or use your own, then that's totally fine.
