@@ -2,6 +2,8 @@
 #include <FastLED.h>
 #include "led.h"
 #include "./conor/conor_patterns.h"
+#include "./dee/dee_patterns.h"
+#include "./denise/denise_patterns.h"
 
 const bool DEBUG_MODE = true;
 
