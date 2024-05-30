@@ -80,6 +80,9 @@ void selectMode() {
     case 5:
       topChase();
       break;
+    case 6:
+      waveVerticalsUpwards();      
+      break;
       // Add the rest 2..31 as needed.
     default:
       break;

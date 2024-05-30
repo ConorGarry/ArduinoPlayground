@@ -4,6 +4,7 @@
 #include <FastLED.h>
 #include "led.h"
 
-void denisePatternPlaceHolder();
+void waveVerticalsUpwards();
+void triColourUp();
 
 #endif

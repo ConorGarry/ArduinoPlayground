@@ -26,5 +26,6 @@ extern struct CRGB *midBottom[];
 extern struct CRGB *middle[];
 extern struct CRGB *midTop[];
 extern struct CRGB *top[];
+extern struct CRGB *upVerticals[];
 
 #endif
