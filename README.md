@@ -230,6 +230,30 @@ This is static, so it won't animate, but it's a good starting point to get used 
 <img width="837" alt="Screenshot 2024-04-27 at 10 26 40" src="https://github.com/ConorGarry/ArduinoPlayground/assets/6222596/45f50572-b8f7-4c31-b442-de2e5795af01">
 
 
+## Useful Reference Images
+#### Run numbers
+![infinity_run_numbers](https://github.com/ConorGarry/ArduinoPlayground/assets/6222596/84512191-e1bc-4627-b7ac-c1138d38c3a0)
+
+#### Face Numbers
+<img width="684" alt="infinity_face_numbers" src="https://github.com/ConorGarry/ArduinoPlayground/assets/6222596/916eca12-055a-48eb-bf59-4939c64422fd">
+
+#### Wiring diagram
+![Infinity_diagram](https://github.com/ConorGarry/ArduinoPlayground/assets/6222596/5d0f5aef-1128-4305-bdec-b8db443cf0af)
+
+#### Parallel Segments
+Note that this is only a reference to the different parallel outputs we require, it's not really something you should design a pattern against, just useful to know which wire is which so it can be mapped in code.
+
+|Data Pin|Field Name|Colour|
+|-|-|-|
+|`7`|`DP_1`|`Red`|
+|`8`|`DP_2`|`Green`|
+|`9`|`DP_3`|`Blue`|
+|`10`|`DP_4`|`Yellow`|
+|`11`|`DP_5`|`Purple`|
+|`12`|`DP_5`|`White`|
+
+<img width="837" alt="infinity-parallel-segments" src="https://github.com/ConorGarry/ArduinoPlayground/assets/6222596/29cab9f7-5643-40b3-b56c-9d57e36bf4d8">
+
 ## Resources
 - [FastLed documentation](http://fastled.io/docs/)
 - [FastLED basics YouTube Tutorial Series](https://www.youtube.com/watch?v=4Ut4UK7612M&list=PLgXkGn3BBAGi5dTOCuEwrLuFtfz0kGFTC) <- I **highly** recommend this! He's a great tutor, explains everything very well.
