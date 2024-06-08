@@ -183,6 +183,7 @@ struct CRGB **pentagons[] = { one, two, three, four, five, six, seven, eight, ni
 #pragma endregion
 
 #pragma region Util Functions
+
 ////////////////////////
 //   Uitil Functions  //
 ////////////////////////

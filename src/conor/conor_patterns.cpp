@@ -24,7 +24,7 @@ void bottomChase() {
 
     // Dim the trailing tail within the strip bounds
     for (int j = 0; j < trailLength; j++) {
-      int index = (i - j - 1 + numLeds) % numLeds; // Calculate the index with wraparound
+      int index = (i - j - 1 + numLeds) % numLeds;
       bottom[0][index] = CRGB(255 - (trailLength - j) * 20, 0, 0);
       bottom[1][index] = CRGB(0, 255 - (trailLength - j) * 20, 0);
       bottom[2][index] = CRGB(0, 0, 255 - (trailLength - j) * 20);
@@ -64,7 +64,7 @@ void midBottomChase() {
 
     // Dim the trailing tail within the strip bounds
     for (int j = 0; j < trailLength; j++) {
-      int index = (i - j - 1 + numLeds) % numLeds; // Calculate the index with wraparound
+      int index = (i - j - 1 + numLeds) % numLeds;
       midBottom[0][index] = CRGB(255 - (trailLength - j) * 20, 0, 0);
       midBottom[1][index] = CRGB(0, 255 - (trailLength - j) * 20, 0);
       midBottom[2][index] = CRGB(0, 0, 255 - (trailLength - j) * 20);
@@ -107,9 +107,8 @@ void middleChase() {
     }
 
     // Dim the trailing tail within the strip bounds
-    for (int j = 0; j < trailLength; j++)
-    {
-      int index = (i - j - 1 + numLeds) % numLeds; // Calculate the index with wraparound
+    for (int j = 0; j < trailLength; j++) {
+      int index = (i - j - 1 + numLeds) % numLeds;
       middle[0][index] = CRGB(255 - (trailLength - j) * 20, 0, 0);
       middle[1][index] = CRGB(0, 255 - (trailLength - j) * 20, 0);
       middle[2][index] = CRGB(0, 0, 255 - (trailLength - j) * 20);
@@ -154,7 +153,7 @@ void midTopChase() {
 
     // Dim the trailing tail within the strip bounds
     for (int j = 0; j < trailLength; j++) {
-      int index = (i - j - 1 + numLeds) % numLeds; // Calculate the index with wraparound
+      int index = (i - j - 1 + numLeds) % numLeds;
       midTop[0][index] = CRGB(255 - (trailLength - j) * 20, 0, 0);
       midTop[1][index] = CRGB(0, 255 - (trailLength - j) * 20, 0);
       midTop[2][index] = CRGB(0, 0, 255 - (trailLength - j) * 20);
@@ -192,7 +191,7 @@ void topChase() {
 
     // Dim the trailing tail within the strip bounds
     for (int j = 0; j < trailLength; j++) {
-      int index = (i - j - 1 + numLeds) % numLeds; // Calculate the index with wraparound
+      int index = (i - j - 1 + numLeds) % numLeds;
       top[0][index] = CRGB(255 - (trailLength - j) * 20, 0, 0);
       top[1][index] = CRGB(0, 255 - (trailLength - j) * 20, 0);
       top[2][index] = CRGB(0, 0, 255 - (trailLength - j) * 20);
@@ -205,7 +204,8 @@ void topChase() {
 
 void rainbowChase() {
   static uint8_t startIndex = 0;
-  // Iterate all LEDs to create a rainbow chase effect, do the different pins in parralel.
+  // Iterate all LEDs to create a rainbow chase effect, do the different pins in
+  // parralel.
   for (int i = 0; i < NUM_LEDS_PER_SEGMENT; i++) {
     leds1[i] = CHSV((startIndex + (i * 2)), 255, 255);
     leds2[i] = CHSV((startIndex + (i * 2)), 255, 255);
@@ -214,16 +214,16 @@ void rainbowChase() {
     leds5[i] = CHSV((startIndex + (i * 2)), 255, 255);
     leds6[i] = CHSV((startIndex + (i * 2)), 255, 255);
   }
-  EVERY_N_MILLISECONDS(20) {  // Adjust the speed of the chase
-    startIndex += 16; /* motion speed */
+  EVERY_N_MILLISECONDS(20) { 
+    startIndex += 16;
   }
   FastLED.show();
 }
 
 void movingLavaNoise() {
-// Define palette colors for lava effect
+  // Define palette colors for lava effect
   CRGBPalette16 palette = HeatColors_p;
-  
+
   // Scale factor for noise animation
   uint8_t scale = 60;
 
@@ -255,13 +255,13 @@ void rainbowFade() {
     leds5[i] = CHSV(startIndex, 255, 255);
     leds6[i] = CHSV(startIndex, 255, 255);
   }
-  EVERY_N_MILLISECONDS(20) {  // Adjust the speed of the fade
+  EVERY_N_MILLISECONDS(20) {
     startIndex++;
   }
   FastLED.show();
 }
 
-void middleOutRainbowEffect(CRGB* ledArray, int numLeds, int chaseLength) {
+void middleOutRainbowEffect(CRGB *ledArray, int numLeds, int chaseLength) {
   static int step = 0;
   int middle = numLeds / 2;
   int hueOffset = 0;
@@ -296,10 +296,10 @@ void rainbowMiddleOut() {
   }
 }
 
-
-void heartbeatPulse(CRGB* ledArray, int numLeds, CRGB color, int interval) {
+void heartbeatPulse(CRGB *ledArray, int numLeds, CRGB color, int interval) {
   static uint8_t brightness = 0;
-  static int pulseState = 0; // 0: increasing brightness, 1: decreasing brightness, 2: short pause, 3: long pause
+  static int pulseState = 0; // 0: increasing brightness, 1: decreasing
+                             // brightness, 2: short pause, 3: long pause
 
   EVERY_N_MILLISECONDS(interval) {
     // Clear the LED strip
@@ -307,31 +307,31 @@ void heartbeatPulse(CRGB* ledArray, int numLeds, CRGB color, int interval) {
 
     // Set the brightness based on the pulse state
     switch (pulseState) {
-      case 0: // First pulse - increasing brightness
-        brightness += 25;
-        if (brightness >= 255) {
-          brightness = 255;
-          pulseState = 1;
-        }
-        break;
-      case 1: // Short pause between pulses
+    case 0: // First pulse - increasing brightness
+      brightness += 25;
+      if (brightness >= 255) {
+        brightness = 255;
+        pulseState = 1;
+      }
+      break;
+    case 1: // Short pause between pulses
+      brightness = 0;
+      pulseState = 2;
+      break;
+    case 2: // Second pulse - increasing brightness
+      brightness += 25;
+      if (brightness >= 255) {
+        brightness = 255;
+        pulseState = 3;
+      }
+      break;
+    case 3: // Long pause
+      brightness -= 25;
+      if (brightness <= 0) {
         brightness = 0;
-        pulseState = 2;
-        break;
-      case 2: // Second pulse - increasing brightness
-        brightness += 25;
-        if (brightness >= 255) {
-          brightness = 255;
-          pulseState = 3;
-        }
-        break;
-      case 3: // Long pause
-        brightness -= 25;
-        if (brightness <= 0) {
-          brightness = 0;
-          pulseState = 0;
-        }
-        break;
+        pulseState = 0;
+      }
+      break;
     }
 
     // Apply the brightness to all LEDs
@@ -354,16 +354,17 @@ void heartBeat() {
 }
 
 void pentagonTest() {
-  CRGB colors[] = {CRGB::Red, CRGB::Green, CRGB::Blue, CRGB::Yellow, CRGB::Purple,
-                   CRGB::White, CRGB::BlueViolet, CRGB::Cyan, CRGB::Brown};
+  CRGB colors[] = {CRGB::Red,        CRGB::Green,  CRGB::Blue,
+                   CRGB::Yellow,     CRGB::Purple, CRGB::White,
+                   CRGB::BlueViolet, CRGB::Cyan,   CRGB::Brown};
 
   for (unsigned int i = 0; i < NUM_PENTAGONS; i++) {
-      fillPentagon(pentagons[i], colors[i % 9]);
-      FastLED.show();
-      delay(250);
-      fillPentagon(pentagons[i], CRGB::Black);
-      FastLED.show();
-      delay(250);
+    fillPentagon(pentagons[i], colors[i % 9]);
+    FastLED.show();
+    delay(250);
+    fillPentagon(pentagons[i], CRGB::Black);
+    FastLED.show();
+    delay(250);
   }
 
   // EVERY_N_MILLISECONDS(750) {
@@ -376,16 +377,16 @@ void pentagonTest() {
   //   i++;
   // }
 
-      // Not what I wanted, but keeping because it's cool!
-      /*EVERY_N_MILLISECONDS(500) {
-        for (int i = 0; i < NUM_PENTAGONS; i++) {
-        static boolean on;
-        on = !on;
-        if (on) {
-          fillPentagon(pentagons[i], colors[i % 9]); // Choose color based on time
-        } else {
-          fillPentagon(pentagons[i], CRGB::Black);
-        }
-        FastLED.show();
-      }*/
+  // Not what I wanted, but keeping because it's cool!
+  /*EVERY_N_MILLISECONDS(500) {
+    for (int i = 0; i < NUM_PENTAGONS; i++) {
+    static boolean on;
+    on = !on;
+    if (on) {
+      fillPentagon(pentagons[i], colors[i % 9]); // Choose color based on time
+    } else {
+      fillPentagon(pentagons[i], CRGB::Black);
+    }
+    FastLED.show();
+  }*/
 }
