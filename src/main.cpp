@@ -64,6 +64,7 @@ void selectMode() {
   switch (mode) {
     case 0:
       rainbowChase();
+      //pentagonTest();
       break;
     case 1:
       bottomChase();
@@ -80,8 +81,16 @@ void selectMode() {
     case 5:
       topChase();
       break;
-      // Add the rest 2..31 as needed.
-    default:
+    case 6:
+      topChase();
+      break;
+    case 7:
+      topChase();
+      break;
+    case 8:
+      topChase();
+      break;
+        default:
       break;
   }
 }

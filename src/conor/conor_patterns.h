@@ -11,5 +11,9 @@ void midTopChase();
 void topChase();
 void rainbowChase();
 void movingLavaNoise();
+void rainbowFade();
+void rainbowMiddleOut();
+void heartBeat();
+void pentagonTest();
 
 #endif
