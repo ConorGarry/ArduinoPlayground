@@ -4,6 +4,8 @@
 #include <FastLED.h>
 #include "led.h"
 
-void deePatternPlaceHolder();
+void freePalestineFullBlink();
+void freePalestineScan();
+void freePalestineChase();
 
 #endif
