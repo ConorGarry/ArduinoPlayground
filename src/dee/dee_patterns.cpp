@@ -25,7 +25,8 @@ void freePalestineFullBlink() {
 }
 
 void freePalestineScan() {
-  // Blink Palestinian Colours
+  // Scan Palestinian Colours
+
     for (int i = 0; i < NUM_LEDS_PER_SEGMENT; i++) {
      leds1[i] = leds2[i] = leds3[i] = leds4[i] = leds5[i] = leds6[i] = CRGB::Red;
      leds1[i+1] = leds2[i+1] = leds3[i+1] = leds4[i+1] = leds5[i+1] = leds6[i+1] = CRGB::Red;
@@ -58,6 +59,48 @@ void freePalestineScan() {
   // FastLED.show();
   delay(500);  
 }
+
+void freePalestineStripScan() {
+  // Scan along Each Strip and back again with changing Palestinian Colours
+    for (int i = 0; i < NUM_LEDS_PER_STRIP; i++) {
+      for (int j = 0; j < NUM_STRIPS; j++){
+     allStrips[j][i] = CRGB::Red;
+     allStrips[j][i+1] = CRGB::Red;
+     allStrips[j][i+2] = CRGB::Red;
+     FastLED.show();
+     allStrips[j][i] = CRGB::Black;
+     }
+    // delay(20);
+    }
+  // FastLED.show();
+  // delay(500);
+ 
+   for (int i = 0; i < NUM_LEDS_PER_STRIP; i++) {
+      for (int j = 0; j < NUM_STRIPS; j++){
+     allStrips[j][i] = CRGB::White;
+     allStrips[j][i+1] = CRGB::White;
+     allStrips[j][i+2] = CRGB::White;
+     FastLED.show();
+     allStrips[j][i] = CRGB::Black;
+     }
+    // delay(20);
+    }
+  // FastLED.show();
+  // delay(500);  
+   for (int i = 0; i < NUM_LEDS_PER_STRIP; i++) {
+      for (int j = 0; j < NUM_STRIPS; j++){
+     allStrips[j][i] = CRGB::DarkGreen;
+     allStrips[j][i+1] = CRGB::DarkGreen;
+     allStrips[j][i+2] = CRGB::DarkGreen;
+     FastLED.show();
+     allStrips[j][i] = CRGB::Black;
+     }
+    // delay(20);
+    }
+  // FastLED.show();
+  // delay(500);  
+}
+
 
 void freePalestineChase() {
   // Chase Palestinian Colours back and forth on full segment 

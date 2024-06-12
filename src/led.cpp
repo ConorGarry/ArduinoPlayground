@@ -182,6 +182,43 @@ struct CRGB **pentagons[] = { one, two, three, four, five, six, seven, eight, ni
 
 #pragma endregion
 
+#pragma strip Segments
+
+struct CRGB *allStrips[] = {
+    CRGBSet(leds1, (NUM_LEDS_PER_STRIP * 0), (NUM_LEDS_PER_STRIP * 1)), // Strip 1
+    CRGBSet(leds1, (NUM_LEDS_PER_STRIP * 1), (NUM_LEDS_PER_STRIP * 2)), // Strip 2
+    CRGBSet(leds1, (NUM_LEDS_PER_STRIP * 2), (NUM_LEDS_PER_STRIP * 3)), // Strip 3
+    CRGBSet(leds1, (NUM_LEDS_PER_STRIP * 3), (NUM_LEDS_PER_STRIP * 4)), // Strip 4
+    CRGBSet(leds1, (NUM_LEDS_PER_STRIP * 4), (NUM_LEDS_PER_STRIP * 5)), // Strip 5
+    CRGBSet(leds2, (NUM_LEDS_PER_STRIP * 0), (NUM_LEDS_PER_STRIP * 1)), // Strip 6
+    CRGBSet(leds2, (NUM_LEDS_PER_STRIP * 1), (NUM_LEDS_PER_STRIP * 2)), // Strip 7
+    CRGBSet(leds2, (NUM_LEDS_PER_STRIP * 2), (NUM_LEDS_PER_STRIP * 3)), // Strip 8
+    CRGBSet(leds2, (NUM_LEDS_PER_STRIP * 3), (NUM_LEDS_PER_STRIP * 4)), // Strip 9
+    CRGBSet(leds2, (NUM_LEDS_PER_STRIP * 4), (NUM_LEDS_PER_STRIP * 5)), // Strip 10
+    CRGBSet(leds3, (NUM_LEDS_PER_STRIP * 0), (NUM_LEDS_PER_STRIP * 1)), // Strip 11
+    CRGBSet(leds3, (NUM_LEDS_PER_STRIP * 1), (NUM_LEDS_PER_STRIP * 2)), // Strip 12
+    CRGBSet(leds3, (NUM_LEDS_PER_STRIP * 2), (NUM_LEDS_PER_STRIP * 3)), // Strip 13
+    CRGBSet(leds3, (NUM_LEDS_PER_STRIP * 3), (NUM_LEDS_PER_STRIP * 4)), // Strip 14
+    CRGBSet(leds3, (NUM_LEDS_PER_STRIP * 4), (NUM_LEDS_PER_STRIP * 5)), // Strip 15
+    CRGBSet(leds4, (NUM_LEDS_PER_STRIP * 0), (NUM_LEDS_PER_STRIP * 1)), // Strip 16
+    CRGBSet(leds4, (NUM_LEDS_PER_STRIP * 1), (NUM_LEDS_PER_STRIP * 2)), // Strip 17
+    CRGBSet(leds4, (NUM_LEDS_PER_STRIP * 2), (NUM_LEDS_PER_STRIP * 3)), // Strip 18
+    CRGBSet(leds4, (NUM_LEDS_PER_STRIP * 3), (NUM_LEDS_PER_STRIP * 4)), // Strip 19
+    CRGBSet(leds4, (NUM_LEDS_PER_STRIP * 4), (NUM_LEDS_PER_STRIP * 5)), // Strip 20
+    CRGBSet(leds5, (NUM_LEDS_PER_STRIP * 0), (NUM_LEDS_PER_STRIP * 1)), // Strip 21
+    CRGBSet(leds5, (NUM_LEDS_PER_STRIP * 1), (NUM_LEDS_PER_STRIP * 2)), // Strip 22
+    CRGBSet(leds5, (NUM_LEDS_PER_STRIP * 2), (NUM_LEDS_PER_STRIP * 3)), // Strip 23
+    CRGBSet(leds5, (NUM_LEDS_PER_STRIP * 3), (NUM_LEDS_PER_STRIP * 4)), // Strip 24
+    CRGBSet(leds5, (NUM_LEDS_PER_STRIP * 4), (NUM_LEDS_PER_STRIP * 5)), // Strip 25
+    CRGBSet(leds6, (NUM_LEDS_PER_STRIP * 0), (NUM_LEDS_PER_STRIP * 1)), // Strip 26
+    CRGBSet(leds6, (NUM_LEDS_PER_STRIP * 1), (NUM_LEDS_PER_STRIP * 2)), // Strip 27
+    CRGBSet(leds6, (NUM_LEDS_PER_STRIP * 2), (NUM_LEDS_PER_STRIP * 3)), // Strip 28
+    CRGBSet(leds6, (NUM_LEDS_PER_STRIP * 3), (NUM_LEDS_PER_STRIP * 4)), // Strip 29
+    CRGBSet(leds6, (NUM_LEDS_PER_STRIP * 4), (NUM_LEDS_PER_STRIP * 5)), // Strip 30
+};
+
+#pragma endregion
+
 #pragma region Util Functions
 
 ////////////////////////

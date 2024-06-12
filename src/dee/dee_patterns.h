@@ -6,6 +6,7 @@
 
 void freePalestineFullBlink();
 void freePalestineScan();
+void freePalestineStripScan();
 void freePalestineChase();
 
 #endif

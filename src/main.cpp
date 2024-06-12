@@ -82,7 +82,7 @@ void selectMode() {
       topChase();
       break;
     case 6:
-      freePalestineScan();
+      freePalestineStripScan();
       break;
     case 7:
       freePalestineFullBlink();
