@@ -64,6 +64,7 @@ void selectMode() {
   switch (mode) {
     case 0:
       rainbowChase();
+      //pentagonTest();
       break;
     case 1:
       bottomChase();
@@ -81,10 +82,15 @@ void selectMode() {
       topChase();
       break;
     case 6:
-      waveVerticalsUpwards();      
+      topChase();
       break;
-      // Add the rest 2..31 as needed.
-    default:
+    case 7:
+      topChase();
+      break;
+    case 8:
+      topChase();
+      break;
+        default:
       break;
   }
 }
