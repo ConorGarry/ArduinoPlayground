@@ -8,6 +8,7 @@
 #define NUM_RUNS_PER_PENTAGON 5
 #define NUM_LEDS 2160
 #define NUM_LEDS_PER_STRIP 72
+#define NUM_STRIPS 30
 #define NUM_LEDS_PER_SEGMENT 360
 #define NUM_PENTAGONS 12
 
@@ -33,6 +34,9 @@ extern struct CRGB *midTop[];
 extern struct CRGB *top[];
 extern struct CRGB *one[];
 extern struct CRGB *two[];
+
+// All Strips
+extern struct CRGB *allStrips[];
 
 // Array of pentagon faces.
 extern struct CRGB **pentagons[];
