@@ -34,6 +34,7 @@ extern struct CRGB *midTop[];
 extern struct CRGB *top[];
 extern struct CRGB *one[];
 extern struct CRGB *two[];
+extern struct CRGB *allVerticals[];
 
 // All Strips
 extern struct CRGB *allStrips[];

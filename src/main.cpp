@@ -16,7 +16,7 @@ const bool DEBUG_MODE = true;
 #define DP_6 12
 
 // Pins connected to the 5 toggle switches.
-const int switchPins[] = {2, 3, 4, 5, 6}; 
+const int switchPins[] = {2, 3, 4}; 
 
 // Start with mode 0 (first delcared pattern) as default.
 int mode = 0;
@@ -36,7 +36,7 @@ void setup() {
   FastLED.setMaxRefreshRate(0);
 
   // Initialize switch pins as inputs
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < 3; i++) {
     pinMode(switchPins[i], INPUT_PULLUP); // Enable internal pull-up resistors
   }
 }
@@ -44,7 +44,7 @@ void setup() {
 void selectMode() {
   // Read the state of each switch and calculate the binary value
   int binaryValue = 0;
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < 3; i++) {
     binaryValue |= digitalRead(switchPins[i]) << i;
   }
 
@@ -65,9 +65,11 @@ void selectMode() {
     case 0:
       rainbowChase();
       //pentagonTest();
+      // waveVerticalsOverwards();
       break;
     case 1:
-      bottomChase();
+      // bottomChase();
+      twinkle();
       break;
     case 2:
       midBottomChase();

@@ -4,7 +4,18 @@
 #include <FastLED.h>
 #include "led.h"
 
-void waveVerticalsUpwards();
-void triColourUp();
+#define NUM_TWINKLE_COLOURS 4
+
+static const CRGB TwinkleColours[] =
+{
+    CRGB::Blue,
+    CRGB::Purple,
+    CRGB::Pink,
+    CRGB::Aquamarine
+}; 
+
+void waveVerticalsOverwards();
+void unicornColourOver();
+void twinkle();
 
 #endif

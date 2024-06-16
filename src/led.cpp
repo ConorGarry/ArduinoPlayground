@@ -65,6 +65,34 @@ struct CRGB *top[] = {
     CRGBSet(leds6, NUM_LEDS_PER_STRIP, NUM_LEDS_PER_STRIP * 2), // 27
     CRGBSet(leds6, NUM_LEDS_PER_STRIP * 2, NUM_LEDS_PER_STRIP * 3), // 28
 };
+
+struct CRGB *allVerticals[] = {
+    CRGBSet(leds1, 0, NUM_LEDS_PER_STRIP - 1),                      // 1
+    CRGBSet(leds1, NUM_LEDS_PER_STRIP * 4, NUM_LEDS_PER_STRIP * 5), // 5
+    CRGBSet(leds2, 0, NUM_LEDS_PER_STRIP),                           // 6
+    CRGBSet(leds1, NUM_LEDS_PER_STRIP, (NUM_LEDS_PER_STRIP * 2)), // 2
+    CRGBSet(leds1, (NUM_LEDS_PER_STRIP * 3), (NUM_LEDS_PER_STRIP * 4)), // 4
+    CRGBSet(leds4, (NUM_LEDS_PER_STRIP * 2), (NUM_LEDS_PER_STRIP * 3)), // 18
+    CRGBSet(leds4, (NUM_LEDS_PER_STRIP * 4), (NUM_LEDS_PER_STRIP * 5)), // 20
+    CRGBSet(leds2, (NUM_LEDS_PER_STRIP * 1), (NUM_LEDS_PER_STRIP * 2)), // 7
+    CRGBSet(leds2, (NUM_LEDS_PER_STRIP * 3), (NUM_LEDS_PER_STRIP * 4)), // 9
+    CRGBSet(leds3, (NUM_LEDS_PER_STRIP * 1), (NUM_LEDS_PER_STRIP * 2)), // 12
+    CRGBSet(leds3, (NUM_LEDS_PER_STRIP * 4), (NUM_LEDS_PER_STRIP * 5)), // 15
+    CRGBSet(leds4, (NUM_LEDS_PER_STRIP * 1), (NUM_LEDS_PER_STRIP * 0)), // 17 
+    CRGBSet(leds5, (NUM_LEDS_PER_STRIP * 2), (NUM_LEDS_PER_STRIP * 3)), // 23
+    CRGBSet(leds5, 0, NUM_LEDS_PER_STRIP), // 21
+    CRGBSet(leds2, (NUM_LEDS_PER_STRIP * 4), (NUM_LEDS_PER_STRIP * 5)), // 10
+    CRGBSet(leds3, (NUM_LEDS_PER_STRIP * 2), (NUM_LEDS_PER_STRIP * 3)), // 13
+    CRGBSet(leds3, (NUM_LEDS_PER_STRIP * 3), (NUM_LEDS_PER_STRIP * 4)), // 14
+    CRGBSet(leds5, (NUM_LEDS_PER_STRIP * 3), (NUM_LEDS_PER_STRIP * 4)), // 24
+    CRGBSet(leds5, (NUM_LEDS_PER_STRIP * 4), (NUM_LEDS_PER_STRIP * 5)), // 25
+    CRGBSet(leds6, (NUM_LEDS_PER_STRIP * 3), (NUM_LEDS_PER_STRIP * 4)), // 29
+    CRGBSet(leds6, (NUM_LEDS_PER_STRIP * 4), (NUM_LEDS_PER_STRIP * 5)), // 30
+    CRGBSet(leds6, 0, NUM_LEDS_PER_STRIP), // 26
+    CRGBSet(leds6, NUM_LEDS_PER_STRIP, NUM_LEDS_PER_STRIP * 2), // 27
+    CRGBSet(leds6, NUM_LEDS_PER_STRIP * 2, NUM_LEDS_PER_STRIP * 3), // 28
+};
+
 #pragma endregion
 
 #pragma region Pentagon Segments
