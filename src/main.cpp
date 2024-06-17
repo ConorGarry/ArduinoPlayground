@@ -74,7 +74,8 @@ void selectMode() {
       // comets();
       // pentagonTest();
       // waveVerticalsOverwards();
-      Fire2012();
+      // Fire2012();
+      prettyNoise();
       break;
     case 1:
       // bottomChase();

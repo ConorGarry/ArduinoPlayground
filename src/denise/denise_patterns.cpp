@@ -121,6 +121,17 @@ void Fire2012()
     }
 }
 
+void prettyNoise() {
+  // for (int i = 0; i < 6; i++ ) {
+    fill_noise16 (leds1, NUM_LEDS_PER_SEGMENT, 1, 0, 100, 1, 1, 50, millis() / 3, 5);
+    fill_noise16 (leds2, NUM_LEDS_PER_SEGMENT, 1, 0, 100, 1, 1, 50, millis() / 3, 5);
+    fill_noise16 (leds3, NUM_LEDS_PER_SEGMENT, 1, 0, 100, 1, 1, 50, millis() / 3, 5);
+    fill_noise16 (leds4, NUM_LEDS_PER_SEGMENT, 1, 0, 100, 1, 1, 50, millis() / 3, 5);
+    fill_noise16 (leds5, NUM_LEDS_PER_SEGMENT, 1, 0, 100, 1, 1, 50, millis() / 3, 5);
+    fill_noise16 (leds6, NUM_LEDS_PER_SEGMENT, 1, 0, 100, 1, 1, 50, millis() / 3, 5);
+  // }
+}
+
 
 void waveVerticalsOverwards()
 {  
