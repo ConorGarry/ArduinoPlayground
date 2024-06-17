@@ -11,6 +11,8 @@
 #define NUM_STRIPS 30
 #define NUM_LEDS_PER_SEGMENT 360
 #define NUM_PENTAGONS 12
+#define NUM_VERTICAL_STRIPS 24
+
 
 
 extern CRGB leds1[]; // 1–5

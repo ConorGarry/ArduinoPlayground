@@ -50,6 +50,41 @@ void twinkle()
   // delay(50);
 }
 
+//something wrong with this. Not working with sumulator anyway. Fails after about 20 loops
+void comets() 
+{  
+  const byte fadeAmt = 128;
+  const int cometSize = 20;
+  const int deltaHue  = 4;
+
+  static byte hue = HUE_RED;
+  static int iDirection = 1;
+  static int iPos = 0;
+
+  static int randomVerticalStrip = random(NUM_VERTICAL_STRIPS);
+  randomVerticalStrip--;
+
+  hue += deltaHue;
+
+  iPos += iDirection;
+  if (iPos == (NUM_LEDS - cometSize) || iPos == 0)
+      iDirection *= -1;
+  for  (int j = 0; j<NUM_LEDS_PER_STRIP; j++)
+  {
+
+  }
+  
+  for (int i = 0; i < cometSize; i++)
+      allVerticals[randomVerticalStrip][iPos + i].setHue(hue);
+  
+  // Randomly fade the LEDs
+  for (int j = 0; j < NUM_LEDS_PER_STRIP; j++)
+      if (random(10) > 5)
+          allVerticals[randomVerticalStrip][j] = allVerticals[randomVerticalStrip][j].fadeToBlackBy(fadeAmt);  
+
+  delay(200);
+}
+
 void waveVerticalsOverwards()
 {  
   // Loop through each LED in the segment

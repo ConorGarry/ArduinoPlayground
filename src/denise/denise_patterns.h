@@ -17,5 +17,6 @@ static const CRGB TwinkleColours[] =
 void waveVerticalsOverwards();
 void unicornColourOver();
 void twinkle();
+void comets();
 
 #endif
