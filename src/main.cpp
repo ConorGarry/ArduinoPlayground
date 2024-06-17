@@ -71,9 +71,10 @@ void selectMode() {
     case 0:
       //úrainbowChase();
       // twinkle();
-      comets();
+      // comets();
       // pentagonTest();
       // waveVerticalsOverwards();
+      Fire2012();
       break;
     case 1:
       // bottomChase();
