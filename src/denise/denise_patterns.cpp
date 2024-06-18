@@ -58,31 +58,34 @@ void comets()
   const int deltaHue  = 4;
 
   static byte hue = HUE_RED;
-  static int iDirection = 1;
+  // static int iDirection = 1;
   static int iPos = 0;
+  FastLED.setBrightness(BRIGHTNESS);
 
-  static int randomVerticalStrip = random(NUM_VERTICAL_STRIPS);
-  randomVerticalStrip--;
+  static int randomStrip = random(NUM_STRIPS);
+  randomStrip--;
 
   hue += deltaHue;
 
-  iPos += iDirection;
-  if (iPos == (NUM_LEDS - cometSize) || iPos == 0)
-      iDirection *= -1;
-  for  (int j = 0; j<NUM_LEDS_PER_STRIP; j++)
-  {
+  // iPos += iDirection;
+  // if (iPos == (NUM_LEDS_PER_STRIP - cometSize) || iPos == 0)
+  //     iDirection *= -1;
 
-  }
+  iPos = random(NUM_LEDS_PER_STRIP - cometSize - 2);
+  // for  (int j = 0; j< NUM_LEDS_PER_STRIP; j++)
+  // {
+
+  // }
   
   for (int i = 0; i < cometSize; i++)
-      allVerticals[randomVerticalStrip][iPos + i].setHue(hue);
+      allStrips[randomStrip][iPos + i].setHue(hue);
   
   // Randomly fade the LEDs
   for (int j = 0; j < NUM_LEDS_PER_STRIP; j++)
       if (random(10) > 5)
-          allVerticals[randomVerticalStrip][j] = allVerticals[randomVerticalStrip][j].fadeToBlackBy(fadeAmt);  
+          allStrips[randomStrip][j] = allStrips[randomStrip][j].fadeToBlackBy(fadeAmt);  
 
-  delay(200);
+  delay(40);
 }
 
 void Fire2012()
@@ -122,14 +125,49 @@ void Fire2012()
 }
 
 void prettyNoise() {
-  // for (int i = 0; i < 6; i++ ) {
     fill_noise16 (leds1, NUM_LEDS_PER_SEGMENT, 1, 0, 100, 1, 1, 50, millis() / 3, 5);
     fill_noise16 (leds2, NUM_LEDS_PER_SEGMENT, 1, 0, 100, 1, 1, 50, millis() / 3, 5);
     fill_noise16 (leds3, NUM_LEDS_PER_SEGMENT, 1, 0, 100, 1, 1, 50, millis() / 3, 5);
     fill_noise16 (leds4, NUM_LEDS_PER_SEGMENT, 1, 0, 100, 1, 1, 50, millis() / 3, 5);
     fill_noise16 (leds5, NUM_LEDS_PER_SEGMENT, 1, 0, 100, 1, 1, 50, millis() / 3, 5);
     fill_noise16 (leds6, NUM_LEDS_PER_SEGMENT, 1, 0, 100, 1, 1, 50, millis() / 3, 5);
-  // }
+}
+
+void otherTwinkle() {
+  EVERY_N_MILLISECONDS(75) {
+    int randomLED = random16(0, NUM_LEDS_PER_SEGMENT);
+    leds1[randomLED] = CRGB::LightGrey;
+    leds2[randomLED] = CRGB::LightGrey;
+    leds3[randomLED] = CRGB::LightGrey;
+    leds4[randomLED] = CRGB::LightGrey;
+    leds5[randomLED] = CRGB::LightGrey;
+    leds6[randomLED] = CRGB::LightGrey;
+  }
+
+
+  for (int i = 0; i < NUM_LEDS_PER_SEGMENT; i++) {
+    
+    // Brightness
+    uint8_t bNoise = inoise8(i * 100, millis());
+    bNoise = constrain(bNoise, 50, 200);
+    bNoise = map(bNoise, 50, 200, 20, 80);
+
+    // Hue
+    uint8_t hNoise = inoise8(i * 20, millis() / 5);
+    hNoise = constrain(hNoise, 50, 200);
+    hNoise = map(hNoise, 50, 200, 160, 192);
+    
+    if (leds1[i].g == 0) {
+      leds1[i] = leds2[i] = leds3[i] = leds4[i] = leds5[i] = leds6[i] = CHSV(hNoise, 255, bNoise);
+    }
+  }
+  
+  fadeToBlackBy(leds1, NUM_LEDS_PER_SEGMENT, 5);
+  fadeToBlackBy(leds2, NUM_LEDS_PER_SEGMENT, 5);
+  fadeToBlackBy(leds3, NUM_LEDS_PER_SEGMENT, 5);
+  fadeToBlackBy(leds4, NUM_LEDS_PER_SEGMENT, 5);
+  fadeToBlackBy(leds5, NUM_LEDS_PER_SEGMENT, 5);
+  fadeToBlackBy(leds6, NUM_LEDS_PER_SEGMENT, 5);
 }
 
 

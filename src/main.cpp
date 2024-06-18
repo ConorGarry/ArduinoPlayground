@@ -69,23 +69,29 @@ void selectMode() {
   FastLED.clear();
   switch (mode) {
     case 0:
-      //úrainbowChase();
-      // twinkle();
+      //rainbowChase();
+      twinkle();
       // comets();
       // pentagonTest();
       // waveVerticalsOverwards();
       // Fire2012();
-      prettyNoise();
+      // prettyNoise();
+      // otherTwinkle();
       break;
     case 1:
-      // bottomChase();
-      twinkle();
+      bottomChase();
+      midBottomChase();
+      middleChase();
+      midTopChase();
+      topChase();
       break;
     case 2:
       midBottomChase();
       break;
     case 3:
-      middleChase();
+      // middleChase();
+      twinkle();
+      comets();
       break;
     case 4:
       midTopChase();
