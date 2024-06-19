@@ -28,18 +28,18 @@ CRGB leds6[NUM_LEDS_PER_SEGMENT]; // 26–30
 
 
 struct CRGB *bottom[] = {
-    CRGBSet(leds1, 0, NUM_LEDS_PER_STRIP - 1),                      // 1
-    CRGBSet(leds1, NUM_LEDS_PER_STRIP * 4, NUM_LEDS_PER_STRIP * 5), // 5
-    CRGBSet(leds2, 0, NUM_LEDS_PER_STRIP)                           // 6
+    CRGBSet(leds, 0, NUM_LEDS_PER_STRIP - 1),                      // 1
+    CRGBSet(leds, NUM_LEDS_PER_STRIP * 4, NUM_LEDS_PER_STRIP * 5), // 5
+    CRGBSet(leds, NUM_LEDS_PER_STRIP * 3, NUM_LEDS_PER_STRIP * 3) // 6
 };
 
 struct CRGB *midBottom[] = {
-    CRGBSet(leds1, NUM_LEDS_PER_STRIP, (NUM_LEDS_PER_STRIP * 2)), // 2
-    CRGBSet(leds1, (NUM_LEDS_PER_STRIP * 3), (NUM_LEDS_PER_STRIP * 4)), // 4
-    CRGBSet(leds4, (NUM_LEDS_PER_STRIP * 2), (NUM_LEDS_PER_STRIP * 3)), // 18
-    CRGBSet(leds4, (NUM_LEDS_PER_STRIP * 4), (NUM_LEDS_PER_STRIP * 5)), // 20
-    CRGBSet(leds2, (NUM_LEDS_PER_STRIP * 1), (NUM_LEDS_PER_STRIP * 2)), // 7
-    CRGBSet(leds2, (NUM_LEDS_PER_STRIP * 3), (NUM_LEDS_PER_STRIP * 3)), // 9
+    CRGBSet(leds, NUM_LEDS_PER_STRIP, (NUM_LEDS_PER_STRIP * 2)), // 2
+    CRGBSet(leds, (NUM_LEDS_PER_STRIP * 3), (NUM_LEDS_PER_STRIP * 4)), // 4
+    CRGBSet(leds, (NUM_LEDS_PER_STRIP * 2), (NUM_LEDS_PER_STRIP * 3)), // 18
+    CRGBSet(leds, (NUM_LEDS_PER_STRIP * 4), (NUM_LEDS_PER_STRIP * 5)), // 20
+    CRGBSet(leds, (NUM_LEDS_PER_STRIP * 1), (NUM_LEDS_PER_STRIP * 2)), // 7
+    CRGBSet(leds, (NUM_LEDS_PER_STRIP * 3), (NUM_LEDS_PER_STRIP * 3)), // 9
 };
 
 struct CRGB *middle[] = {
@@ -73,11 +73,11 @@ struct CRGB *top[] = {
 ////////////////////////
 
 struct CRGB *one[] = {
-    CRGBSet(leds1, 0, NUM_LEDS_PER_STRIP), // 1
-    CRGBSet(leds1, NUM_LEDS_PER_STRIP * 1, NUM_LEDS_PER_STRIP * 2), // 2
-    CRGBSet(leds1, NUM_LEDS_PER_STRIP * 2, NUM_LEDS_PER_STRIP * 3), // 3
-    CRGBSet(leds1, NUM_LEDS_PER_STRIP * 3, NUM_LEDS_PER_STRIP * 4), // 4
-    CRGBSet(leds1, NUM_LEDS_PER_STRIP * 4, NUM_LEDS_PER_STRIP * 5), // 5
+    CRGBSet(leds, 0, NUM_LEDS), // 1
+    CRGBSet(leds, NUM_LEDS * 1, NUM_LEDS * 2), // 2
+    CRGBSet(leds, NUM_LEDS * 2, NUM_LEDS * 3), // 3
+    CRGBSet(leds, NUM_LEDS * 3, NUM_LEDS * 4), // 4
+    CRGBSet(leds, NUM_LEDS * 4, NUM_LEDS * 5), // 5
 };
 
 struct CRGB *two[] = {

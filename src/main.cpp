@@ -4,19 +4,31 @@
 #include "./conor/conor_patterns.h"
 #include "./dee/dee_patterns.h"
 #include "./denise/denise_patterns.h"
+#include "teensy4controller.h"
 
-const bool DEBUG_MODE = true;
+const bool DEBUG_MODE = false;
 
 // Define the 6 data pins for the LED strips in parallel.
-#define DP_1 7
-#define DP_2 8
-#define DP_3 9
-#define DP_4 10
-#define DP_5 11
-#define DP_6 12
+#define DP_1 6
+#define DP_2 7
+#define DP_3 8
+#define DP_4 9
+#define DP_5 10
+#define DP_6 11
 
 // Pins connected to the 5 toggle switches.
-const int switchPins[] = {2, 3, 4, 5, 6}; 
+const int switchPins[] = {2, 3, 4}; 
+
+byte pinList[NUM_PINS] = {2, 14, 7, 8, 6, 20};
+CRGB leds[NUM_PINS * NUM_LEDS];
+
+// The total number of pixels is "ledsPerStrip * numPins".
+// Each pixel needs 3 bytes, so multiply by 3.  An "int" is 4 bytes, so divide by 4.
+// The array is created using "int" so the compiler will align it to 32 bit memory.
+DMAMEM int displayMemory[NUM_LEDS * NUM_PINS * 3 / 4];
+int drawingMemory[NUM_LEDS * NUM_PINS * 3 / 4];
+OctoWS2811 octo(NUM_LEDS, displayMemory, drawingMemory, WS2811_RGB | WS2811_800kHz, NUM_PINS, pinList);
+CTeensy4Controller<RGB, WS2811_800kHz> *pcontroller;
 
 // Start with mode 0 (first delcared pattern) as default.
 int mode = 0;
@@ -26,14 +38,19 @@ void setup() {
     Serial.begin(9600);
   }
 
-  // Initialize the LED strip
-  FastLED.addLeds<LED_TYPE, DP_1, COLOR_ORDER>(leds1, NUM_LEDS_PER_SEGMENT);
-  FastLED.addLeds<LED_TYPE, DP_2, COLOR_ORDER>(leds2, NUM_LEDS_PER_SEGMENT);
-  FastLED.addLeds<LED_TYPE, DP_3, COLOR_ORDER>(leds3, NUM_LEDS_PER_SEGMENT);
-  FastLED.addLeds<LED_TYPE, DP_4, COLOR_ORDER>(leds4, NUM_LEDS_PER_SEGMENT);
-  FastLED.addLeds<LED_TYPE, DP_5, COLOR_ORDER>(leds5, NUM_LEDS_PER_SEGMENT);
-  FastLED.addLeds<LED_TYPE, DP_6, COLOR_ORDER>(leds6, NUM_LEDS_PER_SEGMENT);
-  FastLED.setMaxRefreshRate(0);
+  for (int i = 0; i < NUM_LEDS_PER_SEGMENT; i++) {
+    leds1[i] = leds[i];
+    leds2[i] = leds[i + NUM_LEDS_PER_SEGMENT];
+    leds3[i] = leds[i + NUM_LEDS_PER_SEGMENT * 2];
+    leds4[i] = leds[i + NUM_LEDS_PER_SEGMENT * 3];
+    leds5[i] = leds[i + NUM_LEDS_PER_SEGMENT * 4];
+    leds6[i] = leds[i + NUM_LEDS_PER_SEGMENT * 5];
+  }
+
+  octo.begin();
+  pcontroller = new CTeensy4Controller<RGB, WS2811_800kHz>(&octo);
+  FastLED.setBrightness(255);
+  FastLED.addLeds(pcontroller, leds, NUM_PINS * NUM_LEDS);
 
   // Initialize switch pins as inputs
   for (int i = 0; i < 5; i++) {
@@ -96,6 +113,24 @@ void selectMode() {
 }
 
 void loop() {
-  FastLED.show();
-  selectMode();
+  rainbowChase();
+  //selectMode();
+
+  //heartBeat();
+  //bottomChase();
+  //midBottomChase();
+  //rainbowMiddleOut();
+  //movingLavaNoise();
+
+  //pentagonTest();
+
+  // int microsec = 600000 / NUM_LEDS;
+  // colorWipe(RED, microsec);
+  // colorWipe(GREEN, microsec);
+  // colorWipe(BLUE, microsec);
+  // colorWipe(YELLOW, microsec);
+  // colorWipe(PINK, microsec);
+  // colorWipe(ORANGE, microsec);
+  // colorWipe(WHITE, microsec);
+  // FastLED.show();
 }
