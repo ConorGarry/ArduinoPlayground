@@ -9,6 +9,15 @@ CRGB leds4[NUM_LEDS_PER_SEGMENT]; // 16–20
 CRGB leds5[NUM_LEDS_PER_SEGMENT]; // 21–25
 CRGB leds6[NUM_LEDS_PER_SEGMENT]; // 26–30
 
+struct CRGB *ledSegments[] = {
+    leds1,                      // 1-5
+    leds2,                      // 6-10
+    leds3,                      // 11–15
+    leds4,                      // 16–20
+    leds5,                      // 21–25
+    leds6                       // 26–30
+};
+
 #pragma region Vertical Segments
 /*
 
