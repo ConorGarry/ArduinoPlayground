@@ -207,12 +207,13 @@ void rainbowChase() {
   // Iterate all LEDs to create a rainbow chase effect, do the different pins in
   // parralel.
   for (int i = 0; i < NUM_LEDS_PER_SEGMENT; i++) {
-    leds1[i] = CHSV((startIndex + (i * 2)), 255, 255);
-    leds2[i] = CHSV((startIndex + (i * 2)), 255, 255);
-    leds3[i] = CHSV((startIndex + (i * 2)), 255, 255);
-    leds4[i] = CHSV((startIndex + (i * 2)), 255, 255);
-    leds5[i] = CHSV((startIndex + (i * 2)), 255, 255);
-    leds6[i] = CHSV((startIndex + (i * 2)), 255, 255);
+    CHSV color = CHSV((startIndex + (i * 2)), 255, 255);
+    leds[i] = color;
+    leds[i + NUM_LEDS_PER_SEGMENT] = color;
+    leds[i + NUM_LEDS_PER_SEGMENT * 2] = color;
+    leds[i + NUM_LEDS_PER_SEGMENT * 3] = color;
+    leds[i + NUM_LEDS_PER_SEGMENT * 4] = color;
+    leds[i + NUM_LEDS_PER_SEGMENT * 5] = color;
   }
   EVERY_N_MILLISECONDS(20) { 
     startIndex += 16;
@@ -228,15 +229,15 @@ void movingLavaNoise() {
   uint8_t scale = 60;
 
   // Animate noise
-  for (int i = 0; i < NUM_LEDS_PER_SEGMENT; i++) {
+  for (int i = 0; i < 2130; i++) {
     uint8_t index = inoise8(i * scale, millis() / 1000);
     CRGB color = ColorFromPalette(palette, index);
-    leds1[i] = color;
+    leds[i] = color;
   }
 
   // Slowly shift colors along the LED strip
   static uint8_t hue = 0;
-  fill_rainbow(leds2, NUM_LEDS_PER_SEGMENT, hue++, 3);
+  fill_rainbow(leds, NUM_LEDS_PER_SEGMENT, hue++, 3);
 
   // Show LED strip
   FastLED.show();
@@ -291,9 +292,9 @@ void middleOutRainbowEffect(CRGB *ledArray, int numLeds, int chaseLength) {
 }
 
 void rainbowMiddleOut() {
-  for (int i = 0; i < 6; i++) {
-    middleOutRainbowEffect(ledSegments[i], NUM_LEDS_PER_SEGMENT, 32);
-  }
+  //for (int i = 0; i < 6; i++) {
+    middleOutRainbowEffect(leds, 2130, 32);
+  //}
 }
 
 void heartbeatPulse(CRGB *ledArray, int numLeds, CRGB color, int interval) {
@@ -348,9 +349,9 @@ void heartbeatPulse(CRGB *ledArray, int numLeds, CRGB color, int interval) {
 void heartBeat() {
   int interval = 60; // Adjust the interval for the speed of the heartbeat
   // Apply the heartbeat pulse effect to each strip
-  for (int i = 0; i < 6; i++) {
-    heartbeatPulse(ledSegments[i], NUM_LEDS_PER_SEGMENT, CRGB::Red, interval);
-  }
+  //for (int i = 0; i < 6; i++) {
+    heartbeatPulse(leds, 2130, CRGB::Red, interval);
+  //}
 }
 
 void pentagonTest() {
@@ -366,6 +367,7 @@ void pentagonTest() {
     FastLED.show();
     delay(250);
   }
+
 
   // EVERY_N_MILLISECONDS(750) {
   //   static int colorIndex = 0;
@@ -389,4 +391,18 @@ void pentagonTest() {
     }
     FastLED.show();
   }*/
+}
+
+void colorWipe(int color, int wait) {
+  for (int i = 0; i < NUM_LEDS_PER_SEGMENT; i++) {
+    leds[i] = color;
+    leds[i + NUM_LEDS_PER_SEGMENT] = color;
+    leds[i + NUM_LEDS_PER_SEGMENT * 2] = color;
+    leds[i + NUM_LEDS_PER_SEGMENT * 3] = color;
+    leds[i + NUM_LEDS_PER_SEGMENT * 4] = color;
+    leds[i + NUM_LEDS_PER_SEGMENT * 5] = color;
+
+    FastLED.show();
+    delayMicroseconds(wait);
+  }
 }
