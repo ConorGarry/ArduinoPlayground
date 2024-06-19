@@ -13,6 +13,7 @@
 #define NUM_LEDS_PER_SEGMENT 355
 #define NUM_PENTAGONS 12
 #define NUM_PINS 6
+#define NUM_VERTICAL_STRIPS 24
 
 
 

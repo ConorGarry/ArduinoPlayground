@@ -63,7 +63,7 @@ void freePalestineScan() {
 void freePalestineStripScan() {
   // Scan along Each Strip and back again with changing Palestinian Colours
     for (int i = 0; i < NUM_LEDS_PER_STRIP; i++) {
-      for (int j = 0; j < NUM_STRIPS; j++){
+      for (int j = 0; j < NUM_PINS; j++){
      allStrips[j][i] = CRGB::Red;
      allStrips[j][i+1] = CRGB::Red;
      allStrips[j][i+2] = CRGB::Red;
@@ -76,7 +76,7 @@ void freePalestineStripScan() {
   // delay(500);
  
    for (int i = 0; i < NUM_LEDS_PER_STRIP; i++) {
-      for (int j = 0; j < NUM_STRIPS; j++){
+      for (int j = 0; j < NUM_PINS; j++){
      allStrips[j][i] = CRGB::White;
      allStrips[j][i+1] = CRGB::White;
      allStrips[j][i+2] = CRGB::White;
@@ -88,7 +88,7 @@ void freePalestineStripScan() {
   // FastLED.show();
   // delay(500);  
    for (int i = 0; i < NUM_LEDS_PER_STRIP; i++) {
-      for (int j = 0; j < NUM_STRIPS; j++){
+      for (int j = 0; j < NUM_PINS; j++){
      allStrips[j][i] = CRGB::DarkGreen;
      allStrips[j][i+1] = CRGB::DarkGreen;
      allStrips[j][i+2] = CRGB::DarkGreen;

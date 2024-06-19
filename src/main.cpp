@@ -30,7 +30,6 @@ DMAMEM int displayMemory[NUM_LEDS * NUM_PINS * 3 / 4];
 int drawingMemory[NUM_LEDS * NUM_PINS * 3 / 4];
 OctoWS2811 octo(NUM_LEDS, displayMemory, drawingMemory, WS2811_RGB | WS2811_800kHz, NUM_PINS, pinList);
 CTeensy4Controller<RGB, WS2811_800kHz> *pcontroller;
-=======
 
 // Start with mode 0 (first delcared pattern) as default.
 int mode = 0;
