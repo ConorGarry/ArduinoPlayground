@@ -69,7 +69,8 @@ void selectMode() {
   FastLED.clear();
   switch (mode) {
     case 0:
-      rainbowChase();      
+      // rainbowChase();      
+      pride();
       break;
     case 1:
       bottomChase();

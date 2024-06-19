@@ -34,5 +34,6 @@ void comets();
 void Fire2012();
 void prettyNoise();
 void otherTwinkle();
+void pride();
 
 #endif
