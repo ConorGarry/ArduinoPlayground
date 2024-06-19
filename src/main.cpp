@@ -9,6 +9,7 @@
 const bool DEBUG_MODE = false;
 
 // Define the 6 data pins for the LED strips in parallel.
+
 #define DP_1 6
 #define DP_2 7
 #define DP_3 8
@@ -29,6 +30,7 @@ DMAMEM int displayMemory[NUM_LEDS * NUM_PINS * 3 / 4];
 int drawingMemory[NUM_LEDS * NUM_PINS * 3 / 4];
 OctoWS2811 octo(NUM_LEDS, displayMemory, drawingMemory, WS2811_RGB | WS2811_800kHz, NUM_PINS, pinList);
 CTeensy4Controller<RGB, WS2811_800kHz> *pcontroller;
+=======
 
 // Start with mode 0 (first delcared pattern) as default.
 int mode = 0;
@@ -53,7 +55,7 @@ void setup() {
   FastLED.addLeds(pcontroller, leds, NUM_PINS * NUM_LEDS);
 
   // Initialize switch pins as inputs
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < 3; i++) {
     pinMode(switchPins[i], INPUT_PULLUP); // Enable internal pull-up resistors
   }
 }
@@ -61,7 +63,7 @@ void setup() {
 void selectMode() {
   // Read the state of each switch and calculate the binary value
   int binaryValue = 0;
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < 3; i++) {
     binaryValue |= digitalRead(switchPins[i]) << i;
   }
 
@@ -80,32 +82,37 @@ void selectMode() {
   FastLED.clear();
   switch (mode) {
     case 0:
-      rainbowChase();
-      //pentagonTest();
+      // rainbowChase();      
+      pride();
       break;
     case 1:
       bottomChase();
+      midBottomChase();
+      middleChase();
+      midTopChase();
+      topChase();
       break;
     case 2:
-      midBottomChase();
+      pentagonTest();
       break;
     case 3:
-      middleChase();
+      twinkle();
+      comets();
       break;
     case 4:
-      midTopChase();
+      Fire2012();
       break;
     case 5:
-      topChase();
+      prettyNoise();
       break;
     case 6:
-      topChase();
+      waveVerticalsOverwards();
       break;
     case 7:
-      topChase();
+      freePalestineFullBlink();
       break;
     case 8:
-      topChase();
+      freePalestineChase();
       break;
         default:
       break;
