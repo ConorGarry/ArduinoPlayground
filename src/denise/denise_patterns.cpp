@@ -11,32 +11,33 @@ void twinkle()
     FastLED.clear(false);
 
   }
-  for(int i = 0; i < NUM_PINS; i++)
+  for(int i = 0; i < NUM_STRIPS; i++)
   {
     allStrips[i][random(NUM_LEDS_PER_STRIP)] = TwinkleColours[random(NUM_TWINKLE_COLOURS)];
   }
 }
 
-  unsigned long previousMillis = 0;           // Stores last time LEDs were updated
-  int count = 0;                              // Stores count for incrementing up to the NUM_LEDs
+// for comets
+unsigned long previousMillis = 0;           // Stores last time LEDs were updated
+int cometCount = 0;                         // Stores count for incrementing up to the NUM_LEDs
 
-//something wrong with this. Not working with sumulator anyway. Fails after about 20 loops
 void comets() 
 {  
 
 // tried this too but copped the issue with the first one
 	unsigned int interval = random(2000, 8000);
-  int randomStrip = random(1, NUM_PINS);
+  int randomStrip = random(1, NUM_STRIPS);
+  int cometLength = 20;
 	
   unsigned long currentMillis = millis();   // Get the time
   if (currentMillis - previousMillis >= interval) {
     previousMillis = currentMillis;         // Save the last time the LEDs were updated
-    count = 0;                              // Reset the count to 0 after each interval
+    cometCount = 0;                              // Reset the count to 0 after each interval
   }
-  for (int i = 0; i < 20; i++){
-    if (count < NUM_LEDS_PER_STRIP) {     // Forward direction option for LEDs
-      allStrips[randomStrip][count % (NUM_LEDS_PER_STRIP+1)].setRGB(255, 255, 255);    // Set LEDs with the color value
-      count++;
+  for (int i = 0; i < cometLength; i++){
+    if (cometCount < NUM_LEDS_PER_STRIP) {     // Forward direction option for LEDs
+      allStrips[randomStrip][cometCount % (NUM_LEDS_PER_STRIP+1)].setRGB(255, 255, 255);    // Set LEDs with the color value
+      cometCount++;
     }
   }
 
@@ -86,9 +87,10 @@ void Fire2012()
 }
 
 void prettyNoise() {
-  for (int i = 0; i < 6; i++) {
-    fill_noise16(ledSegments[i], NUM_LEDS_PER_SEGMENT, 1, 0, 100, 1, 1, 50, millis() / 3, 5);    
-  }    
+  // for (int i = 0; i < 6; i++) {
+    // fill_noise16(ledSegments[i], NUM_LEDS_PER_SEGMENT, 1, 0, 100, 1, 1, 50, millis() / 3, 5);    
+    fill_noise16(leds, NUM_LEDS * NUM_PINS, 1, 0, 100, 1, 1, 50, millis() / 3, 5);    
+  // }    
 }
 
 void otherTwinkle() {
@@ -120,44 +122,35 @@ void otherTwinkle() {
   }
 }
 
-
+// might be shite but see what it looks like I suppose
 void waveVerticalsOverwards()
 {  
   // Loop through each LED in the segment
-  for (int i = 0; i < NUM_LEDS_PER_SEGMENT; i++)
+  for (int i = 0; i < NUM_LEDS_PER_STRIP; i++)
   {    
     // Calculate brightness using a sine wave
-    uint8_t brightness = 255 * (0.5 + 0.5 * sin(2 * PI * (millis() / 1000.0) + i * PI / NUM_LEDS_PER_SEGMENT));
+    uint8_t brightness = 255 * (0.5 + 0.5 * sin(2 * PI * (millis() / 1000.0) + i * PI / NUM_LEDS_PER_STRIP));
 
     // Set colors based on segment position
-    if (i < (NUM_LEDS_PER_SEGMENT / 5))
-    {
-      leds2[i] = CRGB(brightness, 0, 0); // Red wave
-      leds5[i] = CRGB(brightness, 0, 255); // Indigo wave      
-    }
+      allStrips[5][i] = CRGB(brightness, 0, 0); // Red wave //6
+      allStrips[20][i] = CRGB(brightness, 0, 255); // Indigo wave   //21   
+
   }
-  for (int i = NUM_LEDS_PER_SEGMENT -1; i >=(NUM_LEDS_PER_SEGMENT / 5); i--){
-    uint8_t brightness = 255 * (0.5 + 0.5 * sin(2 * PI * (millis() / 1000.0) + i * PI / NUM_LEDS_PER_SEGMENT));
-    if (i < (NUM_LEDS_PER_SEGMENT / 5) * 2 && i >= (NUM_LEDS_PER_SEGMENT / 5))
-      {      
-        leds3[i] = CRGB(brightness, brightness, 0); // Yellow wave
-        leds6[i] = CRGB(brightness, 215, 0); // Gold wave      
-      }
-      else if (i < (NUM_LEDS_PER_SEGMENT / 5) * 3 && i >= (NUM_LEDS_PER_SEGMENT / 5) * 2)
-      {      
-        leds4[i] = CRGB(0, 0, brightness); // Blue wave
-        leds5[i] = CRGB(brightness, 0, brightness); // Violet wave      
-      }
-      else if (i < (NUM_LEDS_PER_SEGMENT / 5) * 4 && i >= (NUM_LEDS_PER_SEGMENT / 5) * 3)
-      {
-        leds2[i] = CRGB(brightness, 100, 0); // Orange wave
-        leds6[i] = CRGB(brightness, brightness, brightness); // White wave      
-      }
-      else
-      {      
-        leds3[i] = CRGB(0, brightness, 0); // Green wave
-        leds5[i] = CRGB(brightness, brightness, brightness); // Silver wave      
-      }
+  for (int i = NUM_LEDS_PER_STRIP -1; i >=0; i--){
+    uint8_t brightness = 255 * (0.5 + 0.5 * sin(2 * PI * (millis() / 1000.0) + i * PI / NUM_LEDS_PER_STRIP));
+          
+        allStrips[11][i] = CRGB(brightness, brightness, 0); // Yellow wave //12
+        allStrips[26][i] = CRGB(brightness, 215, 0); // Gold wave      //27
+            
+        allStrips[17][i] = CRGB(0, 0, brightness); // Blue wave //18
+        allStrips[22][i] = CRGB(brightness, 0, brightness); // Violet wave    //23  
+      
+        allStrips[8][i] = CRGB(brightness, 100, 0); // Orange wave //9
+        allStrips[28][i] = CRGB(brightness, brightness, brightness); // White wave      //29
+          
+        allStrips[14][i] = CRGB(0, brightness, 0); // Green wave //15
+        allStrips[24][i] = CRGB(brightness, brightness, brightness); // Silver wave      //25
+     
     }
   FastLED.show();  
 }
@@ -168,65 +161,37 @@ CRGB nextUnicornColour(const CRGB currentColour)
 }
 
 // Animate a chase effect  on the pentagons
+// Bad code but in case we're desperate or it happens to actually look good
 void unicornColourOver()
 {  
   // Set up initial colours
-  for (int i = 0; i < NUM_LEDS_PER_SEGMENT; i++)
+  for (int i = 0; i < NUM_LEDS_PER_STRIP; i++)
   {
-    leds1[i] = CRGB::Purple;
-    if (i < (NUM_LEDS_PER_SEGMENT / 5))
-    {
-      leds2[i] = CRGB::Purple;
-      leds3[i] = leds4[i] = leds5[i] = CRGB::BlueViolet;
-      leds6[i] = CRGB::Pink;
-    }
-    else if (i < (NUM_LEDS_PER_SEGMENT / 5) * 2)
-    {
-      leds2[i] = leds4[i] = leds6[i] = CRGB::BlueViolet;
-      leds3[i] = CRGB::Purple;
-      leds5[i] = CRGB::Pink;
-    }
-    else if (i < (NUM_LEDS_PER_SEGMENT / 5) * 3)
-    {
-      leds2[i] = leds3[i] = leds5[i] = CRGB::BlueViolet;
-      leds4[i] = CRGB::Purple;
-      leds6[i] = CRGB::Pink;
-    }
-    else if (i < (NUM_LEDS_PER_SEGMENT / 5) * 4)
-    {
-      leds2[i] = CRGB::Purple;
-      leds3[i] = leds4[i] = leds6[i] = CRGB::BlueViolet;
-      leds5[i] = CRGB::Pink;
-    }
-    else
-    {
-      leds2[i] = leds4[i] = leds5[i] = CRGB::BlueViolet;
-      leds3[i] = CRGB::Purple;
-      leds6[i] = CRGB::Pink;
-    }
+    allStrips[0][i] = allStrips[5][i]  = allStrips[11][i] = allStrips[17][i] = allStrips[8][i] = allStrips[14][i] = CRGB::Purple; //1, 6, 12, 18, 9, 15
+    // allStrips[6][i] = allStrips[7][i]  = allStrips[9][i] = allStrips[10][i] = allStrips[12][i] = allStrips[13][i] = allStrips[15][i] = allStrips[16][i] = 
+    //   allStrips[18][i] = allStrips[19][i] = allStrips[20][i] = allStrips[22][i] = allStrips[24][i] = allStrips[26][i] = allStrips[28][i] = CRGB::Purple; //7, 8, 10, 11, 13, 14, 16, 17, 19, 10, 21, 23, 25, 27, 28
+    for (int j = 6; j < 29; j++){
+      if(j != 8 && j != 11 && j != 14 && j != 17 && j != 21 && j != 23 && j != 25 && j != 27)
+        allStrips[j][i] = CRGB::Purple;
+    }    
+    allStrips[25][i] = allStrips[21][i]  = allStrips[27][i] = allStrips[23][i] = allStrips[29][i] = CRGB::Pink; //26, 22, 28, 24, 30  
   }
   FastLED.show();
-  delay(1000);  
-  for (int i = 0; i < NUM_LEDS_PER_SEGMENT; i++)
-  {
-    leds1[i] = nextUnicornColour(leds1[i]);
-    leds2[i] = nextUnicornColour(leds2[i]);
-    leds3[i] = nextUnicornColour(leds3[i]);
-    leds4[i] = nextUnicornColour(leds4[i]);
-    leds5[i] = nextUnicornColour(leds5[i]);
-    leds6[i] = nextUnicornColour(leds6[i]);
-  }    
+  delay(1000);
+  for (int i = 0; i < NUM_STRIPS; i++){
+    for (int j = 0; j < NUM_LEDS_PER_SEGMENT; j++)
+    {
+      allStrips[i][j] = nextUnicornColour(allStrips[i][j]);
+    }   
+  } 
   FastLED.show();  
   delay(1000);
-  for (int i = 0; i < NUM_LEDS_PER_SEGMENT; i++)
-  {
-    leds1[i] = nextUnicornColour(leds1[i]);
-    leds2[i] = nextUnicornColour(leds2[i]);
-    leds3[i] = nextUnicornColour(leds3[i]);
-    leds4[i] = nextUnicornColour(leds4[i]);
-    leds5[i] = nextUnicornColour(leds5[i]);
-    leds6[i] = nextUnicornColour(leds6[i]);
-  }    
+  for (int i = 0; i < NUM_STRIPS; i++){
+    for (int j = 0; j < NUM_LEDS_PER_SEGMENT; j++)
+    {
+      allStrips[i][j] = nextUnicornColour(allStrips[i][j]);
+    }   
+  }
   FastLED.show(); 
   delay(1000); /* frame rate */
 }
@@ -252,7 +217,7 @@ void pride()
   sPseudotime += deltams * msmultiplier;
   sHue16 += deltams * beatsin88( 400, 5,9);
   uint16_t brightnesstheta16 = sPseudotime;
-  for (int j = 0; j < NUM_PINS; j++){
+  for (int j = 0; j < NUM_STRIPS; j++){
     for( uint16_t i = 0 ; i < NUM_LEDS_PER_STRIP; i++) {
       hue16 += hueinc16;
       uint8_t hue8 = hue16 / 256;

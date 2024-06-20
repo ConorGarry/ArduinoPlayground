@@ -14,6 +14,7 @@
 #define NUM_PENTAGONS 12
 #define NUM_PINS 6
 #define NUM_VERTICAL_STRIPS 24
+#define NUM_STRIPS 30
 
 
 

@@ -29,11 +29,18 @@ static const CRGB TwinkleColours[] =
 
 void waveVerticalsOverwards();
 void unicornColourOver();
-void twinkle();
-void comets();
 void Fire2012();
 void prettyNoise();
-void otherTwinkle();
 void pride();
+
+//these two go together in the loop so there are intermittent comets in the stars twinkling
+void twinkle();
+void comets();
+
+
+// might look better than the other twinkle if the other one is shite
+// so leave this out if the other one is okay
+void otherTwinkle();
+
 
 #endif
