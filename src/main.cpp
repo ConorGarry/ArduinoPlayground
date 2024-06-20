@@ -60,15 +60,6 @@ void setup() {
 }
 
 void selectMode() {
-  // Read the state of each switch and calculate the binary value
-  int binaryValue = 0;
-  for (int i = 0; i < 3; i++) {
-    binaryValue |= digitalRead(switchPins[i]) << i;
-  }
-
-  // Convert binary value to decimal mode
-  mode = binaryValue;
-
   // Print the mode value to the Serial Monitor
   if (DEBUG_MODE) {
     Serial.print("Mode: ");
@@ -81,18 +72,18 @@ void selectMode() {
   FastLED.clear();
   switch (mode) {
     case 0:
-      // rainbowChase();      
-      pride();
+      rainbowChase();      
       break;
     case 1:
-      bottomChase();
-      midBottomChase();
-      middleChase();
-      midTopChase();
-      topChase();
+      pride();
+      // bottomChase();
+      // midBottomChase();
+      // middleChase();
+      // midTopChase();
+      // topChase();
       break;
     case 2:
-      pentagonTest();
+      colorWipeAll();
       break;
     case 3:
       twinkle();
@@ -119,24 +110,19 @@ void selectMode() {
 }
 
 void loop() {
-  rainbowChase();
-  //selectMode();
+  ///Loop through each pattern function, run each for 10 seconds.
+  for (int i = 0; i < NUM_PATTERNS; i++) {
+    mode = i;
+    selectMode();
+    delay(10000);
+  }
 
+  //rainbowChase();
+  //selectMode();
   //heartBeat();
   //bottomChase();
   //midBottomChase();
   //rainbowMiddleOut();
   //movingLavaNoise();
-
   //pentagonTest();
-
-  // int microsec = 600000 / NUM_LEDS;
-  // colorWipe(RED, microsec);
-  // colorWipe(GREEN, microsec);
-  // colorWipe(BLUE, microsec);
-  // colorWipe(YELLOW, microsec);
-  // colorWipe(PINK, microsec);
-  // colorWipe(ORANGE, microsec);
-  // colorWipe(WHITE, microsec);
-  // FastLED.show();
-}
+ }

@@ -401,8 +401,19 @@ void colorWipe(int color, int wait) {
     leds[i + NUM_LEDS_PER_SEGMENT * 3] = color;
     leds[i + NUM_LEDS_PER_SEGMENT * 4] = color;
     leds[i + NUM_LEDS_PER_SEGMENT * 5] = color;
-
     FastLED.show();
     delayMicroseconds(wait);
   }
+}
+
+void colorWipeAll() {
+  int microsec = 600000 / NUM_LEDS;
+  colorWipe(RED, microsec);
+  colorWipe(GREEN, microsec);
+  colorWipe(BLUE, microsec);
+  colorWipe(YELLOW, microsec);
+  colorWipe(PINK, microsec);
+  colorWipe(ORANGE, microsec);
+  colorWipe(WHITE, microsec);
+  FastLED.show();
 }

@@ -15,7 +15,7 @@
 #define NUM_PINS 6
 #define NUM_VERTICAL_STRIPS 24
 #define NUM_STRIPS 30
-
+#define NUM_PATTERNS 9
 
 
 extern CRGB leds1[]; // 1–5

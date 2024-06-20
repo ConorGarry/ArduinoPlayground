@@ -16,5 +16,6 @@ void rainbowMiddleOut();
 void heartBeat();
 void pentagonTest();
 void colorWipe(int color, int wait);
+void colorWipeAll();
 
 #endif
