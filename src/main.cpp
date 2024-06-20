@@ -107,22 +107,12 @@ void selectMode() {
         default:
       break;
   }
+
+  EVERY_N_SECONDS(10) {
+    mode = (mode + 1) % NUM_PATTERNS;
+  }
 }
 
 void loop() {
-  ///Loop through each pattern function, run each for 10 seconds.
-  for (int i = 0; i < NUM_PATTERNS; i++) {
-    mode = i;
-    selectMode();
-    delay(10000);
-  }
-
-  //rainbowChase();
-  //selectMode();
-  //heartBeat();
-  //bottomChase();
-  //midBottomChase();
-  //rainbowMiddleOut();
-  //movingLavaNoise();
-  //pentagonTest();
- }
+  selectMode();
+}
