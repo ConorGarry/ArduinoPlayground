@@ -2,23 +2,23 @@
 
 void freePalestineFullBlink() {
   // Blink Palestinian Colours
-  for (int i = 0; i < NUM_LEDS_PER_SEGMENT; i++) {
-    leds1[i] = leds2[i] = leds3[i] = leds4[i] = leds5[i] = leds6[i] = CRGB::Red;
+  for (int i = 0; i < NUM_LEDS * NUM_PINS; i++) {
+    leds[i] = CRGB::Red;
   }
   FastLED.show();
   delay(500);
-   for (int i = 0; i < NUM_LEDS_PER_SEGMENT; i++) {
-    leds1[i] = leds2[i] = leds3[i] = leds4[i] = leds5[i] = leds6[i] =  CRGB::Black;
+   for (int i = 0; i < NUM_LEDS * NUM_PINS; i++) {
+    leds[i] = CRGB::Black;
    }
   FastLED.show();
   delay(500);
-   for (int i = 0; i < NUM_LEDS_PER_SEGMENT; i++) {
-    leds1[i] = leds2[i] = leds3[i] = leds4[i] = leds5[i] = leds6[i] =  CRGB::White;
+   for (int i = 0; i < NUM_LEDS * NUM_PINS; i++) {
+    leds[i] = CRGB::White;
    }
   FastLED.show();
   delay(500);  
-   for (int i = 0; i < NUM_LEDS_PER_SEGMENT; i++) {
-    leds1[i] = leds2[i] = leds3[i] = leds4[i] = leds5[i] = leds6[i] =  CRGB::Green;//20,153,84);//0x149954;
+   for (int i = 0; i < NUM_LEDS * NUM_PINS; i++) {
+    leds[i] = CRGB::Green; //20,153,84);//0x149954;
    }
   FastLED.show();
   delay(500);  

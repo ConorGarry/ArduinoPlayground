@@ -75,7 +75,7 @@ void selectMode() {
       rainbowChase();      
       break;
     case 1:
-      pride();
+      Fire2012();      
       // bottomChase();
       // midBottomChase();
       // middleChase();
@@ -90,7 +90,7 @@ void selectMode() {
       comets();
       break;
     case 4:
-      Fire2012();
+      pride();
       break;
     case 5:
       prettyNoise();
@@ -102,13 +102,14 @@ void selectMode() {
       freePalestineFullBlink();
       break;
     case 8:
-      freePalestineChase();
+      // freePalestineChase();
+      movingLavaNoise();
       break;
         default:
       break;
   }
 
-  EVERY_N_SECONDS(10) {
+  EVERY_N_SECONDS(20) {
     mode = (mode + 1) % NUM_PATTERNS;
   }
 }

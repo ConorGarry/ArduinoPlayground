@@ -237,7 +237,7 @@ void movingLavaNoise() {
 
   // Slowly shift colors along the LED strip
   static uint8_t hue = 0;
-  fill_rainbow(leds, NUM_LEDS_PER_SEGMENT, hue++, 3);
+  fill_rainbow(leds, NUM_LEDS * NUM_PINS, hue++, 3);
 
   // Show LED strip
   FastLED.show();
