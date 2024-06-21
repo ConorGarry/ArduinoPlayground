@@ -102,7 +102,7 @@ void selectMode() {
       freePalestineFullBlink();
       break;
     case 8:
-      // freePalestineChase();
+      // freePalestineStripScan();
       movingLavaNoise();
       break;
         default:
