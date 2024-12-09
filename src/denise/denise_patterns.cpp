@@ -11,7 +11,7 @@ void twinkle()
     FastLED.clear(false);
 
   }
-  for(int i = 0; i < NUM_STRIPS; i++)
+  for(int i = 0; i < NUM_PINS; i++)
   {
     allStrips[i][random(NUM_LEDS_PER_STRIP)] = TwinkleColours[random(NUM_TWINKLE_COLOURS)];
   }
@@ -26,7 +26,7 @@ void comets()
 
 // tried this too but copped the issue with the first one
 	unsigned int interval = random(2000, 8000);
-  int randomStrip = random(1, NUM_STRIPS);
+  int randomStrip = random(1, NUM_PINS);
 	
   unsigned long currentMillis = millis();   // Get the time
   if (currentMillis - previousMillis >= interval) {
@@ -252,7 +252,7 @@ void pride()
   sPseudotime += deltams * msmultiplier;
   sHue16 += deltams * beatsin88( 400, 5,9);
   uint16_t brightnesstheta16 = sPseudotime;
-  for (int j = 0; j < NUM_STRIPS; j++){
+  for (int j = 0; j < NUM_PINS; j++){
     for( uint16_t i = 0 ; i < NUM_LEDS_PER_STRIP; i++) {
       hue16 += hueinc16;
       uint8_t hue8 = hue16 / 256;
