@@ -18,7 +18,7 @@ const bool DEBUG_MODE = false;
 #define DP_6 11
 
 // Pins connected to the 5 toggle switches.
-const int switchPins[] = {2, 3, 4}; 
+const int switchPins[] = {0, 1, 23}; 
 
 byte pinList[NUM_PINS] = {2, 14, 7, 8, 6, 20};
 CRGB leds[NUM_PINS * NUM_LEDS];
