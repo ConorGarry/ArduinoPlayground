@@ -15,6 +15,7 @@ void twinkle()
   {
     allStrips[i][random(NUM_LEDS_PER_STRIP)] = TwinkleColours[random(NUM_TWINKLE_COLOURS)];
   }
+  delay(200);
 }
 
 // for comets

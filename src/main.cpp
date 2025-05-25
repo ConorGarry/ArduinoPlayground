@@ -75,7 +75,8 @@ void selectMode() {
       rainbowChase();      
       break;
     case 1:
-      Fire2012();      
+      colorWipeAll();
+      // Fire2012();      
       // bottomChase();
       // midBottomChase();
       // middleChase();
@@ -83,33 +84,30 @@ void selectMode() {
       // topChase();
       break;
     case 2:
-      colorWipeAll();
-      break;
-    case 3:
       twinkle();
       comets();
       break;
+    case 3:
+      waveVerticalsOverwards();
+      // pride();
+      break;
     case 4:
-      pride();
+      freePalestineFullBlink();
+      // prettyNoise();
       break;
     case 5:
-      prettyNoise();
+      freePalestineStripScan();
       break;
-    case 6:
-      waveVerticalsOverwards();
-      break;
-    case 7:
-      freePalestineFullBlink();
-      break;
-    case 8:
-      // freePalestineStripScan();
-      movingLavaNoise();
-      break;
-        default:
+    // case 7:
+      // break;
+    // case 8:
+      // movingLavaNoise();
+      // break;
+    default:
       break;
   }
 
-  EVERY_N_SECONDS(20) {
+  EVERY_N_SECONDS(60) {
     mode = (mode + 1) % NUM_PATTERNS;
   }
 }
