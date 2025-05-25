@@ -35,6 +35,15 @@ CTeensy4Controller<RGB, WS2811_800kHz> *pcontroller;
 int mode = 0;
 
 void setup() {
+  // Read the state of each switch and calculate the binary value
+  int binaryValue = 0;
+  for (int i = 0; i < 3; i++) {
+    binaryValue |= digitalRead(switchPins[i]) << i;
+  }
+
+  // Convert binary value to decimal mode
+  mode = binaryValue;
+
   if (DEBUG_MODE) {
     Serial.begin(9600);
   }
@@ -107,9 +116,9 @@ void selectMode() {
       break;
   }
 
-  EVERY_N_SECONDS(60) {
-    mode = (mode + 1) % NUM_PATTERNS;
-  }
+  // EVERY_N_SECONDS(60) {
+  //   mode = (mode + 1) % NUM_PATTERNS;
+  // }
 }
 
 void loop() {
