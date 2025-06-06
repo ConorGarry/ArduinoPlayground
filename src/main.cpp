@@ -36,13 +36,13 @@ int mode = 0;
 
 void setup() {
   // Read the state of each switch and calculate the binary value
-  int binaryValue = 0;
-  for (int i = 0; i < 3; i++) {
-    binaryValue |= digitalRead(switchPins[i]) << i;
-  }
+ // int binaryValue = 0;
+ // for (int i = 0; i < 3; i++) {
+//    binaryValue |= digitalRead(switchPins[i]) << i;
+ // }
 
   // Convert binary value to decimal mode
-  mode = binaryValue;
+ // mode = binaryValue;
 
   if (DEBUG_MODE) {
     Serial.begin(9600);
@@ -69,6 +69,16 @@ void setup() {
 }
 
 void selectMode() {
+
+  // Read the state of each switch and calculate the binary value
+  int binaryValue = 0;
+  for (int i = 0; i < 3; i++) {
+    binaryValue |= digitalRead(switchPins[i]) << i;
+  }
+
+  // Convert binary value to decimal mode
+  mode = binaryValue;
+
   // Print the mode value to the Serial Monitor
   if (DEBUG_MODE) {
     Serial.print("Mode: ");
