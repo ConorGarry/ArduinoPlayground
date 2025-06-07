@@ -8,12 +8,12 @@
 const bool DEBUG_MODE = true;
 
 // Define the 6 data pins for the LED strips in parallel.
-#define DP_1 7
-#define DP_2 8
-#define DP_3 9
-#define DP_4 10
-#define DP_5 11
-#define DP_6 12
+#define DP_1 6
+#define DP_2 7
+#define DP_3 8
+#define DP_4 9
+#define DP_5 10
+#define DP_6 11
 
 // Pins connected to the 5 toggle switches.
 const int switchPins[] = {2, 3, 4, 5, 6}; 
