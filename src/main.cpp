@@ -9,7 +9,6 @@
 const bool DEBUG_MODE = false;
 
 // Define the 6 data pins for the LED strips in parallel.
-
 #define DP_1 6
 #define DP_2 7
 #define DP_3 8
