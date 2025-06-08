@@ -237,7 +237,7 @@ void movingLavaNoise() {
 
   // Slowly shift colors along the LED strip
   static uint8_t hue = 0;
-  fill_rainbow(leds, NUM_LEDS * NUM_PINS, hue++, 3);
+  fill_rainbow(leds, NUM_LEDS, hue++, 3);
 
   // Show LED strip
   FastLED.show();
@@ -407,7 +407,7 @@ void colorWipe(int color, int wait) {
 }
 
 void colorWipeAll() {
-  int microsec = 600000 / NUM_LEDS;
+  int microsec = 600000 / NUM_LEDS_PER_SEGMENT;
   colorWipe(RED, microsec);
   colorWipe(GREEN, microsec);
   colorWipe(BLUE, microsec);

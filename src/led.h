@@ -7,8 +7,7 @@
 #define RUNS 30
 #define NUM_RUNS_PER_PENTAGON 5
 
-#define NUM_LEDS 355
-//#define NUM_LEDS 2130
+#define NUM_LEDS 2130
 #define NUM_LEDS_PER_STRIP 71
 #define NUM_LEDS_PER_SEGMENT 355
 #define NUM_PENTAGONS 12

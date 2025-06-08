@@ -110,11 +110,11 @@ struct CRGB *allVerticals[] = {
 ////////////////////////
 
 struct CRGB *one[] = {
-    CRGBSet(leds, 0, NUM_LEDS), // 1
-    CRGBSet(leds, NUM_LEDS * 1, NUM_LEDS * 2), // 2
-    CRGBSet(leds, NUM_LEDS * 2, NUM_LEDS * 3), // 3
-    CRGBSet(leds, NUM_LEDS * 3, NUM_LEDS * 4), // 4
-    CRGBSet(leds, NUM_LEDS * 4, NUM_LEDS * 5), // 5
+    CRGBSet(leds, 0, NUM_LEDS_PER_SEGMENT), // 1
+    CRGBSet(leds, NUM_LEDS_PER_SEGMENT * 1, NUM_LEDS_PER_SEGMENT * 2), // 2
+    CRGBSet(leds, NUM_LEDS_PER_SEGMENT * 2, NUM_LEDS_PER_SEGMENT * 3), // 3
+    CRGBSet(leds, NUM_LEDS_PER_SEGMENT * 3, NUM_LEDS_PER_SEGMENT * 4), // 4
+    CRGBSet(leds, NUM_LEDS_PER_SEGMENT * 4, NUM_LEDS_PER_SEGMENT * 5), // 5
 };
 
 struct CRGB *two[] = {
