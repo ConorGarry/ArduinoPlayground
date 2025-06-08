@@ -17,5 +17,6 @@ void heartBeat();
 void pentagonTest();
 void colorWipe(int color, int wait);
 void colorWipeAll();
+void fireFlies();
 
 #endif

@@ -90,13 +90,9 @@ void selectMode() {
       rainbowChase();      // All off
       break;
     case 1: // O on, 1 off, 23 off
-      colorWipeAll();
-      // Fire2012();      
-      // bottomChase();
-      // midBottomChase();
-      // middleChase();
-      // midTopChase();
-      // topChase();
+      fireFlies();
+      //rainbowFade();
+      //colorWipeAll();
       break;
     case 2: // 0 off, 1 on, 23 off (bin 010)
       twinkle();
