@@ -92,6 +92,39 @@ void freePalestineStripScan() {
   // delay(50);   
 }
 
+void showLights() {
+    static byte j = 0;
+    j+=4;
+    byte k = j;
+
+    // Roughly equivalent to fill_rainbow(g_LEDs, NUM_LEDS, j, 8);
+
+    CRGB c;
+    for (int i = 0; i < NUM_LEDS_PER_SEGMENT; i ++)
+    {
+        leds[i] = c.setHue(k+=8);
+        leds[i + NUM_LEDS_PER_SEGMENT] = c.setHue(k+=8);
+        leds[i+NUM_LEDS_PER_SEGMENT * 2] = c.setHue(k+=8);
+        leds[i+NUM_LEDS_PER_SEGMENT * 3] = c.setHue(k+=8);
+        leds[i+NUM_LEDS_PER_SEGMENT * 4] = c.setHue(k+=8);
+        leds[i+NUM_LEDS_PER_SEGMENT * 5] = c.setHue(k+=8);
+    }
+    static int scroll = 0;
+    scroll++;
+    FastLED.show();
+    for (int i = scroll % 5; i < NUM_LEDS - 1; i += 5)
+    {
+        leds[i] = CRGB::Black;
+        leds[i+NUM_LEDS_PER_SEGMENT] = CRGB::Black;
+        leds[i+NUM_LEDS_PER_SEGMENT*2] = CRGB::Black;
+        leds[i+NUM_LEDS_PER_SEGMENT*3] = CRGB::Black;
+        leds[i+NUM_LEDS_PER_SEGMENT*4] = CRGB::Black;
+        leds[i+NUM_LEDS_PER_SEGMENT*5] = CRGB::Black;
+    }
+    FastLED.show();
+    delay(50);
+
+}
 
 void freePalestineChase() {
   // Chase Palestinian Colours back and forth on full segment 

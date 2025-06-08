@@ -35,15 +35,6 @@ CTeensy4Controller<RGB, WS2811_800kHz> *pcontroller;
 int mode = 0;
 
 void setup() {
-  // Read the state of each switch and calculate the binary value
- // int binaryValue = 0;
- // for (int i = 0; i < 3; i++) {
-//    binaryValue |= digitalRead(switchPins[i]) << i;
- // }
-
-  // Convert binary value to decimal mode
- // mode = binaryValue;
-
   if (DEBUG_MODE) {
     Serial.begin(9600);
   }
@@ -61,7 +52,8 @@ void setup() {
   pcontroller = new CTeensy4Controller<RGB, WS2811_800kHz>(&octo);
   FastLED.setBrightness(255);
   FastLED.addLeds(pcontroller, leds, NUM_LEDS);
-
+ //  FastLED.setMaxPowerInMilliWatts (20000); // setting maximum power that leds draw - removed as was causing weird flashes
+ 
   // Initialize switch pins as inputs
   for (int i = 0; i < 3; i++) {
     pinMode(switchPins[i], INPUT_PULLUP); // Enable internal pull-up resistors
@@ -89,11 +81,15 @@ void selectMode() {
   }
 
   FastLED.clear();
+ // set all leds to black before switching pattern
+ // for (int i = 0; i < NUM_LEDS * NUM_PINS; i++) {
+   // leds[i] = CRGB::Black;
+   //}
   switch (mode) {
     case 0:
-      rainbowChase();      
+      rainbowChase();      // All off
       break;
-    case 1:
+    case 1: // O on, 1 off, 23 off
       colorWipeAll();
       // Fire2012();      
       // bottomChase();
@@ -102,26 +98,27 @@ void selectMode() {
       // midTopChase();
       // topChase();
       break;
-    case 2:
+    case 2: // 0 off, 1 on, 23 off (bin 010)
       twinkle();
       comets();
       break;
-    case 3:
+    case 3: // 0 on, 1 on, 23 off
       waveVerticalsOverwards();
       // pride();
       break;
-    case 4:
+    case 4: // 0 off, 1 off, 23 on 
       freePalestineFullBlink();
       // prettyNoise();
       break;
-    case 5:
+    case 5: // 0 on, 1 off, 23 on (bin 101 )
       freePalestineStripScan();
       break;
-    // case 7:
+    case 6: // 0 off, 1 on, 23 on
+       showLights();
+      break;
+    // case 7: // 0 on, 1 on, 23 on
       // break;
-    // case 8:
-      // movingLavaNoise();
-      // break;
+ 
     default:
       break;
   }
