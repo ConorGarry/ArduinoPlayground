@@ -21,14 +21,14 @@ const bool DEBUG_MODE = false;
 const int switchPins[] = {0, 1, 23}; 
 
 byte pinList[NUM_PINS] = {2, 14, 7, 8, 6, 20};
-CRGB leds[NUM_PINS * NUM_LEDS];
+CRGB leds[NUM_LEDS];
 
 // The total number of pixels is "ledsPerStrip * numPins".
 // Each pixel needs 3 bytes, so multiply by 3.  An "int" is 4 bytes, so divide by 4.
 // The array is created using "int" so the compiler will align it to 32 bit memory.
-DMAMEM int displayMemory[NUM_LEDS * NUM_PINS * 3 / 4];
-int drawingMemory[NUM_LEDS * NUM_PINS * 3 / 4];
-OctoWS2811 octo(NUM_LEDS, displayMemory, drawingMemory, WS2811_RGB | WS2811_800kHz, NUM_PINS, pinList);
+DMAMEM int displayMemory[NUM_LEDS * 3 / 4];
+int drawingMemory[NUM_LEDS * 3 / 4];
+OctoWS2811 octo(NUM_LEDS_PER_SEGMENT, displayMemory, drawingMemory, WS2811_RGB | WS2811_800kHz, NUM_PINS, pinList);
 CTeensy4Controller<RGB, WS2811_800kHz> *pcontroller;
 
 // Start with mode 0 (first delcared pattern) as default.
@@ -60,7 +60,7 @@ void setup() {
   octo.begin();
   pcontroller = new CTeensy4Controller<RGB, WS2811_800kHz>(&octo);
   FastLED.setBrightness(255);
-  FastLED.addLeds(pcontroller, leds, NUM_PINS * NUM_LEDS);
+  FastLED.addLeds(pcontroller, leds, NUM_LEDS);
 
   // Initialize switch pins as inputs
   for (int i = 0; i < 3; i++) {

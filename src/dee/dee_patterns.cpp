@@ -2,22 +2,22 @@
 
 void freePalestineFullBlink() {
   // Blink Palestinian Colours
-  for (int i = 0; i < NUM_LEDS * NUM_PINS; i++) {
+  for (int i = 0; i < NUM_LEDS; i++) {
     leds[i] = CRGB::Red;
   }
   FastLED.show();
   delay(500);
-   for (int i = 0; i < NUM_LEDS * NUM_PINS; i++) {
+   for (int i = 0; i < NUM_LEDS; i++) {
     leds[i] = CRGB::Black;
    }
   FastLED.show();
   delay(500);
-   for (int i = 0; i < NUM_LEDS * NUM_PINS; i++) {
+   for (int i = 0; i < NUM_LEDS; i++) {
     leds[i] = CRGB::White;
    }
   FastLED.show();
   delay(500);  
-   for (int i = 0; i < NUM_LEDS * NUM_PINS; i++) {
+   for (int i = 0; i < NUM_LEDS; i++) {
     leds[i] = CRGB::Green; //20,153,84);//0x149954;
    }
   FastLED.show();

@@ -1,54 +1,82 @@
 #include "./denise/denise_patterns.h"
 
-void twinkle()
-{  
-  static int passCount =  0;
-  passCount++;
+// changed  to remove delay
+void twinkle() {
+  static unsigned long lastUpdate = 0;
+  const unsigned long interval = 200;  // Update interval in milliseconds
 
-  if(passCount == NUM_LEDS_PER_SEGMENT)
-  {
-    passCount = 0;
-    FastLED.clear(false);
+  static int passCount = 0;
 
+  // Only proceed if enough time has passed
+  if (millis() - lastUpdate >= interval) {
+    lastUpdate = millis();  // Reset timer
+
+    passCount++;
+    if (passCount >= NUM_LEDS_PER_SEGMENT) {
+      passCount = 0;
+      FastLED.clear(false);
+    }
+
+    for (int i = 0; i < NUM_STRIPS; i++) {
+      int pos = random(NUM_LEDS_PER_STRIP);
+      CRGB twinkColour = TwinkleColours[random(NUM_TWINKLE_COLOURS)];
+      allStrips[i][pos] = twinkColour;
+    }
+
+    FastLED.show();
   }
-  for(int i = 0; i < NUM_STRIPS; i++)
-  {
-    allStrips[i][random(NUM_LEDS_PER_STRIP)] = TwinkleColours[random(NUM_TWINKLE_COLOURS)];
-  }
-  delay(200);
 }
 
 // for comets
 unsigned long previousMillis = 0;           // Stores last time LEDs were updated
 int cometCount = 0;                         // Stores count for incrementing up to the NUM_LEDs
 
-void comets() 
-{  
+void comets() {
+  
+  static unsigned long lastStepMillis = 0;
+  static unsigned long interval = 2000;
+  
+  static int randomStrip = 0;
+  const int cometLength = 20;
 
-// tried this too but copped the issue with the first one
-	unsigned int interval = random(2000, 8000);
-  int randomStrip = random(1, NUM_STRIPS);
-  int cometLength = 20;
-	
-  unsigned long currentMillis = millis();   // Get the time
+  unsigned long currentMillis = millis();
+
+  // Time to start a new comet
   if (currentMillis - previousMillis >= interval) {
-    previousMillis = currentMillis;         // Save the last time the LEDs were updated
-    cometCount = 0;                              // Reset the count to 0 after each interval
+    previousMillis = currentMillis;
+    interval = random(2000, 8000);           // New interval for next comet
+    cometCount = 0;
+    randomStrip = random(NUM_STRIPS);        // Select new strip
+    FastLED.clear(false);
   }
-  for (int i = 0; i < cometLength; i++){
-    if (cometCount < NUM_LEDS_PER_STRIP) {     // Forward direction option for LEDs
-      allStrips[randomStrip][cometCount % (NUM_LEDS_PER_STRIP+1)].setRGB(255, 255, 255);    // Set LEDs with the color value
-      cometCount++;
+
+  // Animate comet step-by-step
+  if (currentMillis - lastStepMillis >= 30) {  // Step speed (tweakable)
+    lastStepMillis = currentMillis;
+
+    // Draw comet pixels
+    for (int i = 0; i < cometLength; i++) {
+      int pos = cometCount - i;
+      if (pos >= 0 && pos < NUM_LEDS_PER_STRIP) {
+        uint8_t brightness = 255 - (i * (255 / cometLength));  // Fade tail
+        allStrips[randomStrip][pos] = CRGB(brightness, brightness, brightness);
+      }
+    }
+
+    // Random twinkle fade
+    for (int j = 0; j < NUM_LEDS_PER_STRIP; j++) {
+      if (random(2) == 1) {
+        allStrips[randomStrip][j].fadeToBlackBy(128);
+      }
+    }
+
+    FastLED.show();
+
+    cometCount++;
+    if (cometCount >= NUM_LEDS_PER_STRIP + cometLength) {
+      cometCount = NUM_LEDS_PER_STRIP + cometLength;  // Wait for new cycle
     }
   }
-
-  // fadeToBlackBy( allStrips[randomStrip], NUM_LEDS_PER_STRIP, 15);                 // Fade the tail LEDs to black
-  for (int j = 0; j < NUM_LEDS_PER_STRIP; j++)
-    if (random(2) == 1)
-        allStrips[randomStrip][j] = allStrips[randomStrip][j].fadeToBlackBy(128);  
-  FastLED.show();
-  delay(random(5, 40));                                      // Delay to set the speed of the animation
-
 }
 
 void Fire2012()
@@ -90,7 +118,7 @@ void Fire2012()
 void prettyNoise() {
   // for (int i = 0; i < 6; i++) {
     // fill_noise16(ledSegments[i], NUM_LEDS_PER_SEGMENT, 1, 0, 100, 1, 1, 50, millis() / 3, 5);    
-    fill_noise16(leds, NUM_LEDS * NUM_PINS, 1, 0, 100, 1, 1, 50, millis() / 3, 5);    
+    fill_noise16(leds, NUM_LEDS, 1, 0, 100, 1, 1, 50, millis() / 3, 5);    
   // }    
 }
 
