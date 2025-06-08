@@ -4,6 +4,7 @@
 #include "./conor/conor_patterns.h"
 #include "./dee/dee_patterns.h"
 #include "./denise/denise_patterns.h"
+#include "./spencer/spencer_patterns.h"
 #include "teensy4controller.h"
 
 const bool DEBUG_MODE = false;

@@ -1,15 +1,14 @@
-#include "spencer_patterns.h"
+#include "./spencer/spencer_patterns.h"
 #include <FastLED.h>
 
 extern CRGB leds[];
-extern const int NUM_LEDS;
+ extern const int NUM_LEDS;
 
 #define MAX_BRIGHTNESS 255
 #define MIN_BRIGHTNESS 0
 
 uint8_t starBrightness[NUM_LEDS];  // array to track each star's life
 bool starGrowing[NUM_LEDS];        // true = brightening, false = fading
-
 
 void spencerSparkle() {
   //darkness, random stars appear faintly,
