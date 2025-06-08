@@ -21,7 +21,7 @@ extern CRGB leds5[]; // 21–25
 extern CRGB leds6[]; // 26–30
 extern CRGB *ledSegments[];
 
-// Define the LED strip type
+// Define the LED strip type - our LEDs are WS2815.
 #define LED_TYPE WS2812B
 // Define the color order of the LED strip.
 #define COLOR_ORDER GRB
