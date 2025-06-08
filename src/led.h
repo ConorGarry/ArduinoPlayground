@@ -36,7 +36,7 @@ extern CRGB leds[];
 #define ORANGE 0xE05800
 #define WHITE 0xFFFFFF
 
-// Define the LED strip type
+// Define the LED strip type - our LEDs are WS2815.
 #define LED_TYPE WS2812B
 // Define the color order of the LED strip.
 #define COLOR_ORDER GRB
