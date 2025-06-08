@@ -2,7 +2,7 @@
 #include <FastLED.h>
 
 extern CRGB leds[];
- extern const int NUM_LEDS;
+//extern const int NUM_LEDS;
 
 #define MAX_BRIGHTNESS 255
 #define MIN_BRIGHTNESS 0
@@ -38,4 +38,5 @@ void spencerSparkle() {
     // Set the LED to white based on its brightness
     leds[i] = CRGB(starBrightness[i], starBrightness[i], starBrightness[i]);
   }
+  FastLED.show();
 }

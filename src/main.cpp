@@ -107,15 +107,14 @@ void selectMode() {
       // prettyNoise();
       break;
     case 5: // 0 on, 1 off, 23 on (bin 101 )
-      freePalestineStripScan();
+      //freePalestineStripScan();
+      rainbowFade();
       break;
     case 6: // 0 off, 1 on, 23 on
        showLights();
       break;
-    // case 7: // 0 on, 1 on, 23 on
-      // break;
- 
-    default:
+    default: // case 7: // 0 on, 1 on, 23 on
+      spencerSparkle();
       break;
   }
 
