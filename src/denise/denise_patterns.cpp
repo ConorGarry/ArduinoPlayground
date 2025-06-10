@@ -3,7 +3,7 @@
 // changed  to remove delay
 void twinkle() {
   static unsigned long lastUpdate = 0;
-  const unsigned long interval = 200;  // Update interval in milliseconds
+  const unsigned long interval = 300;  // Update interval in milliseconds
 
   static int passCount = 0;
 
@@ -51,7 +51,7 @@ void comets() {
   }
 
   // Animate comet step-by-step
-  if (currentMillis - lastStepMillis >= 30) {  // Step speed (tweakable)
+  if (currentMillis - lastStepMillis >= 15) {  // Step speed (tweakable)
     lastStepMillis = currentMillis;
 
     // Draw comet pixels
