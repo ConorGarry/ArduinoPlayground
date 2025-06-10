@@ -4,12 +4,12 @@
 #include "./conor/conor_patterns.h"
 #include "./dee/dee_patterns.h"
 #include "./denise/denise_patterns.h"
+#include "./spencer/spencer_patterns.h"
 #include "teensy4controller.h"
 
 const bool DEBUG_MODE = false;
 
 // Define the 6 data pins for the LED strips in parallel.
-
 #define DP_1 6
 #define DP_2 7
 #define DP_3 8
@@ -107,15 +107,14 @@ void selectMode() {
       // prettyNoise();
       break;
     case 5: // 0 on, 1 off, 23 on (bin 101 )
-      freePalestineStripScan();
+      //freePalestineStripScan();
+      rainbowFade();
       break;
     case 6: // 0 off, 1 on, 23 on
        showLights();
       break;
-    // case 7: // 0 on, 1 on, 23 on
-      // break;
- 
-    default:
+    default: // case 7: // 0 on, 1 on, 23 on
+      spencerSparkle();
       break;
   }
 

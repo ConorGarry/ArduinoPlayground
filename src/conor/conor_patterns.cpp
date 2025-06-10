@@ -254,7 +254,7 @@ void rainbowFade() {
     leds[i + NUM_LEDS_PER_SEGMENT * 2] = CHSV(startIndex, 255, 255);
     leds[i + NUM_LEDS_PER_SEGMENT * 3] = CHSV(startIndex, 255, 255);
     leds[i + NUM_LEDS_PER_SEGMENT * 4] = CHSV(startIndex, 255, 255);
-    leds[i + NUM_LEDS_PER_SEGMENT * 4] = CHSV(startIndex, 255, 255);
+    leds[i + NUM_LEDS_PER_SEGMENT * 5] = CHSV(startIndex, 255, 255);
   }
   EVERY_N_MILLISECONDS(20) {
     startIndex++;
