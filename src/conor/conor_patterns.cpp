@@ -207,12 +207,13 @@ void rainbowChase() {
   // Iterate all LEDs to create a rainbow chase effect, do the different pins in
   // parralel.
   for (int i = 0; i < NUM_LEDS_PER_SEGMENT; i++) {
-    leds1[i] = CHSV((startIndex + (i * 2)), 255, 255);
-    leds2[i] = CHSV((startIndex + (i * 2)), 255, 255);
-    leds3[i] = CHSV((startIndex + (i * 2)), 255, 255);
-    leds4[i] = CHSV((startIndex + (i * 2)), 255, 255);
-    leds5[i] = CHSV((startIndex + (i * 2)), 255, 255);
-    leds6[i] = CHSV((startIndex + (i * 2)), 255, 255);
+    CHSV color = CHSV((startIndex + (i * 2)), 255, 255);
+    leds[i] = color;
+    leds[i + NUM_LEDS_PER_SEGMENT] = color;
+    leds[i + NUM_LEDS_PER_SEGMENT * 2] = color;
+    leds[i + NUM_LEDS_PER_SEGMENT * 3] = color;
+    leds[i + NUM_LEDS_PER_SEGMENT * 4] = color;
+    leds[i + NUM_LEDS_PER_SEGMENT * 5] = color;
   }
   EVERY_N_MILLISECONDS(20) { 
     startIndex += 16;
@@ -228,15 +229,15 @@ void movingLavaNoise() {
   uint8_t scale = 60;
 
   // Animate noise
-  for (int i = 0; i < NUM_LEDS_PER_SEGMENT; i++) {
+  for (int i = 0; i < 2130; i++) {
     uint8_t index = inoise8(i * scale, millis() / 1000);
     CRGB color = ColorFromPalette(palette, index);
-    leds1[i] = color;
+    leds[i] = color;
   }
 
   // Slowly shift colors along the LED strip
   static uint8_t hue = 0;
-  fill_rainbow(leds2, NUM_LEDS_PER_SEGMENT, hue++, 3);
+  fill_rainbow(leds, NUM_LEDS, hue++, 3);
 
   // Show LED strip
   FastLED.show();
@@ -248,12 +249,12 @@ void movingLavaNoise() {
 void rainbowFade() {
   static uint8_t startIndex = 0;
   for (int i = 0; i < NUM_LEDS_PER_SEGMENT; i++) {
-    leds1[i] = CHSV(startIndex, 255, 255);
-    leds2[i] = CHSV(startIndex, 255, 255);
-    leds3[i] = CHSV(startIndex, 255, 255);
-    leds4[i] = CHSV(startIndex, 255, 255);
-    leds5[i] = CHSV(startIndex, 255, 255);
-    leds6[i] = CHSV(startIndex, 255, 255);
+    leds[i] = CHSV(startIndex, 255, 255);
+    leds[i + NUM_LEDS_PER_SEGMENT] = CHSV(startIndex, 255, 255);
+    leds[i + NUM_LEDS_PER_SEGMENT * 2] = CHSV(startIndex, 255, 255);
+    leds[i + NUM_LEDS_PER_SEGMENT * 3] = CHSV(startIndex, 255, 255);
+    leds[i + NUM_LEDS_PER_SEGMENT * 4] = CHSV(startIndex, 255, 255);
+    leds[i + NUM_LEDS_PER_SEGMENT * 4] = CHSV(startIndex, 255, 255);
   }
   EVERY_N_MILLISECONDS(20) {
     startIndex++;
@@ -291,9 +292,9 @@ void middleOutRainbowEffect(CRGB *ledArray, int numLeds, int chaseLength) {
 }
 
 void rainbowMiddleOut() {
-  for (int i = 0; i < 6; i++) {
-    middleOutRainbowEffect(ledSegments[i], NUM_LEDS_PER_SEGMENT, 32);
-  }
+  //for (int i = 0; i < 6; i++) {
+    middleOutRainbowEffect(leds, 2130, 32);
+  //}
 }
 
 void heartbeatPulse(CRGB *ledArray, int numLeds, CRGB color, int interval) {
@@ -348,9 +349,9 @@ void heartbeatPulse(CRGB *ledArray, int numLeds, CRGB color, int interval) {
 void heartBeat() {
   int interval = 60; // Adjust the interval for the speed of the heartbeat
   // Apply the heartbeat pulse effect to each strip
-  for (int i = 0; i < 6; i++) {
-    heartbeatPulse(ledSegments[i], NUM_LEDS_PER_SEGMENT, CRGB::Red, interval);
-  }
+  //for (int i = 0; i < 6; i++) {
+    heartbeatPulse(leds, 2130, CRGB::Red, interval);
+  //}
 }
 
 void pentagonTest() {
@@ -366,6 +367,7 @@ void pentagonTest() {
     FastLED.show();
     delay(250);
   }
+
 
   // EVERY_N_MILLISECONDS(750) {
   //   static int colorIndex = 0;
@@ -389,4 +391,84 @@ void pentagonTest() {
     }
     FastLED.show();
   }*/
+}
+
+void colorWipe(int color, int wait) {
+  for (int i = 0; i < NUM_LEDS_PER_SEGMENT; i++) {
+    leds[i] = color;
+    leds[i + NUM_LEDS_PER_SEGMENT] = color;
+    leds[i + NUM_LEDS_PER_SEGMENT * 2] = color;
+    leds[i + NUM_LEDS_PER_SEGMENT * 3] = color;
+    leds[i + NUM_LEDS_PER_SEGMENT * 4] = color;
+    leds[i + NUM_LEDS_PER_SEGMENT * 5] = color;
+    FastLED.show();
+    delayMicroseconds(wait);
+  }
+}
+
+void colorWipeAll() {
+  int microsec = 600000 / NUM_LEDS_PER_SEGMENT;
+  colorWipe(RED, microsec);
+  colorWipe(GREEN, microsec);
+  colorWipe(BLUE, microsec);
+  colorWipe(YELLOW, microsec);
+  colorWipe(PINK, microsec);
+  colorWipe(ORANGE, microsec);
+  colorWipe(WHITE, microsec);
+  FastLED.show();
+}
+
+void fireFlies() {
+  static int ledIndex = 0;
+  static int colorIndex = 0;
+  static CRGB colors[] = {
+      CHSV(10, 255, 180), // deep orange
+      CHSV(5, 220, 200),  // glowing ember red-orange
+      CHSV(0, 255, 150),  // red, dimmed
+      CHSV(20, 180, 180), // golden amber
+      CHSV(15, 255, 255), // bright orange
+      CHSV(7, 240, 170),  // warm flicker
+      CHSV(12, 200, 220)  // muted flame
+  };
+
+  const int stepDelayMs = 10;
+  static unsigned long lastStep = 0;
+
+  if (millis() - lastStep >= stepDelayMs) {
+    lastStep = millis();
+
+    // Fill all pixels up to current index
+    for (int i = 0; i <= ledIndex && i < NUM_LEDS_PER_SEGMENT; i++) {
+      leds[ledIndex] = colors[colorIndex % i];
+      leds[ledIndex + NUM_LEDS_PER_SEGMENT] = colors[colorIndex % i];
+      leds[ledIndex + NUM_LEDS_PER_SEGMENT * 2] = colors[colorIndex % random()];
+      leds[ledIndex + NUM_LEDS_PER_SEGMENT * 3] = colors[colorIndex % random()];
+      leds[ledIndex + NUM_LEDS_PER_SEGMENT * 4] = colors[colorIndex % random()];
+      leds[ledIndex + NUM_LEDS_PER_SEGMENT * 5] = colors[colorIndex % random()];
+      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 2) * 2] = colors[colorIndex % random(0, 7)];
+      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 3) * 3] = colors[colorIndex % random(0, 7)];
+      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 4) * 4] = colors[colorIndex % random(0, 7)];
+      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 5) * 5] = colors[colorIndex % random(0, 7)];
+      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 2) * 2] = colors[colorIndex % random(0, 7)];
+      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 3) * 3] = colors[colorIndex % random(0, 7)];
+      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 4) * 4] = colors[colorIndex % random(0, 7)];
+      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 5) * 5] = colors[colorIndex % random(0, 7)];
+      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 2) * 2] = colors[colorIndex % random(0, 7)];
+      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 3) * 3] = colors[colorIndex % random(0, 7)];
+      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 4) * 4] = colors[colorIndex % random(0, 7)];
+      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 5) * 5] = colors[colorIndex % random(0, 7)];
+    }
+
+    ledIndex++;
+
+    if (ledIndex >= NUM_LEDS_PER_SEGMENT) {
+      ledIndex = 0;
+      colorIndex = (colorIndex + 1) % (sizeof(colors) / sizeof(colors[0]));
+
+      // Optionally: clear first, or just overwrite in next loop
+      FastLED.clear();
+    }
+
+    FastLED.show(); // Update display each frame
+  }
 }

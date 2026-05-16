@@ -4,8 +4,10 @@
 #include "./conor/conor_patterns.h"
 #include "./dee/dee_patterns.h"
 #include "./denise/denise_patterns.h"
+#include "./spencer/spencer_patterns.h"
+#include "teensy4controller.h"
 
-const bool DEBUG_MODE = true;
+const bool DEBUG_MODE = false;
 
 // Define the 6 data pins for the LED strips in parallel.
 #define DP_1 6
@@ -16,7 +18,18 @@ const bool DEBUG_MODE = true;
 #define DP_6 11
 
 // Pins connected to the 5 toggle switches.
-const int switchPins[] = {2, 3, 4, 5, 6}; 
+const int switchPins[] = {0, 1, 23}; 
+
+byte pinList[NUM_PINS] = {2, 14, 7, 8, 6, 20};
+CRGB leds[NUM_LEDS];
+
+// The total number of pixels is "ledsPerStrip * numPins".
+// Each pixel needs 3 bytes, so multiply by 3.  An "int" is 4 bytes, so divide by 4.
+// The array is created using "int" so the compiler will align it to 32 bit memory.
+DMAMEM int displayMemory[NUM_LEDS * 3 / 4];
+int drawingMemory[NUM_LEDS * 3 / 4];
+OctoWS2811 octo(NUM_LEDS_PER_SEGMENT, displayMemory, drawingMemory, WS2811_RGB | WS2811_800kHz, NUM_PINS, pinList);
+CTeensy4Controller<RGB, WS2811_800kHz> *pcontroller;
 
 // Start with mode 0 (first delcared pattern) as default.
 int mode = 0;
@@ -26,25 +39,32 @@ void setup() {
     Serial.begin(9600);
   }
 
-  // Initialize the LED strip
-  FastLED.addLeds<LED_TYPE, DP_1, COLOR_ORDER>(leds1, NUM_LEDS_PER_SEGMENT);
-  FastLED.addLeds<LED_TYPE, DP_2, COLOR_ORDER>(leds2, NUM_LEDS_PER_SEGMENT);
-  FastLED.addLeds<LED_TYPE, DP_3, COLOR_ORDER>(leds3, NUM_LEDS_PER_SEGMENT);
-  FastLED.addLeds<LED_TYPE, DP_4, COLOR_ORDER>(leds4, NUM_LEDS_PER_SEGMENT);
-  FastLED.addLeds<LED_TYPE, DP_5, COLOR_ORDER>(leds5, NUM_LEDS_PER_SEGMENT);
-  FastLED.addLeds<LED_TYPE, DP_6, COLOR_ORDER>(leds6, NUM_LEDS_PER_SEGMENT);
-  FastLED.setMaxRefreshRate(0);
+  for (int i = 0; i < NUM_LEDS_PER_SEGMENT; i++) {
+    leds1[i] = leds[i];
+    leds2[i] = leds[i + NUM_LEDS_PER_SEGMENT];
+    leds3[i] = leds[i + NUM_LEDS_PER_SEGMENT * 2];
+    leds4[i] = leds[i + NUM_LEDS_PER_SEGMENT * 3];
+    leds5[i] = leds[i + NUM_LEDS_PER_SEGMENT * 4];
+    leds6[i] = leds[i + NUM_LEDS_PER_SEGMENT * 5];
+  }
 
+  octo.begin();
+  pcontroller = new CTeensy4Controller<RGB, WS2811_800kHz>(&octo);
+  FastLED.setBrightness(255);
+  FastLED.addLeds(pcontroller, leds, NUM_LEDS);
+ //  FastLED.setMaxPowerInMilliWatts (20000); // setting maximum power that leds draw - removed as was causing weird flashes
+ 
   // Initialize switch pins as inputs
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < 3; i++) {
     pinMode(switchPins[i], INPUT_PULLUP); // Enable internal pull-up resistors
   }
 }
 
 void selectMode() {
+
   // Read the state of each switch and calculate the binary value
   int binaryValue = 0;
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < 3; i++) {
     binaryValue |= digitalRead(switchPins[i]) << i;
   }
 
@@ -61,41 +81,48 @@ void selectMode() {
   }
 
   FastLED.clear();
+ // set all leds to black before switching pattern
+ // for (int i = 0; i < NUM_LEDS * NUM_PINS; i++) {
+   // leds[i] = CRGB::Black;
+   //}
   switch (mode) {
     case 0:
-      rainbowChase();
-      //pentagonTest();
+      rainbowChase();      // All off
       break;
-    case 1:
-      bottomChase();
+    case 1: // O on, 1 off, 23 off
+      fireFlies();
+      //rainbowFade();
+      //colorWipeAll();
       break;
-    case 2:
-      midBottomChase();
+    case 2: // 0 off, 1 on, 23 off (bin 010)
+      twinkle();
+      comets();
       break;
-    case 3:
-      middleChase();
+    case 3: // 0 on, 1 on, 23 off
+      waveVerticalsOverwards();
+      // pride();
       break;
-    case 4:
-      midTopChase();
-      break;
-    case 5:
-      topChase();
-      break;
-    case 6:
-      freePalestineStripScan();
-      break;
-    case 7:
+    case 4: // 0 off, 1 off, 23 on 
       freePalestineFullBlink();
+      // prettyNoise();
       break;
-    case 8:
-      freePalestineChase();
+    case 5: // 0 on, 1 off, 23 on (bin 101 )
+      //freePalestineStripScan();
+      rainbowFade();
       break;
-        default:
+    case 6: // 0 off, 1 on, 23 on
+       showLights();
+      break;
+    default: // case 7: // 0 on, 1 on, 23 on
+      spencerSparkle();
       break;
   }
+
+  // EVERY_N_SECONDS(60) {
+  //   mode = (mode + 1) % NUM_PATTERNS;
+  // }
 }
 
 void loop() {
-  FastLED.show();
   selectMode();
 }
