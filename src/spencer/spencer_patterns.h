@@ -4,5 +4,6 @@
 
 
 void spencerSparkle();
+void galaxy();
 
 #endif

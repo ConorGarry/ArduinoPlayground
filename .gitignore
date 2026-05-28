@@ -5,3 +5,10 @@
 .vscode/ipch
 
 .fake
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc

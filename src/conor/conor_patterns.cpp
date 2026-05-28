@@ -254,7 +254,7 @@ void rainbowFade() {
     leds[i + NUM_LEDS_PER_SEGMENT * 2] = CHSV(startIndex, 255, 255);
     leds[i + NUM_LEDS_PER_SEGMENT * 3] = CHSV(startIndex, 255, 255);
     leds[i + NUM_LEDS_PER_SEGMENT * 4] = CHSV(startIndex, 255, 255);
-    leds[i + NUM_LEDS_PER_SEGMENT * 4] = CHSV(startIndex, 255, 255);
+    leds[i + NUM_LEDS_PER_SEGMENT * 5] = CHSV(startIndex, 255, 255);
   }
   EVERY_N_MILLISECONDS(20) {
     startIndex++;
@@ -430,6 +430,7 @@ void fireFlies() {
       CHSV(7, 240, 170),  // warm flicker
       CHSV(12, 200, 220)  // muted flame
   };
+  const int NUM_FIRE_COLORS = sizeof(colors) / sizeof(colors[0]);
 
   const int stepDelayMs = 10;
   static unsigned long lastStep = 0;
@@ -439,24 +440,24 @@ void fireFlies() {
 
     // Fill all pixels up to current index
     for (int i = 0; i <= ledIndex && i < NUM_LEDS_PER_SEGMENT; i++) {
-      leds[ledIndex] = colors[colorIndex % i];
-      leds[ledIndex + NUM_LEDS_PER_SEGMENT] = colors[colorIndex % i];
-      leds[ledIndex + NUM_LEDS_PER_SEGMENT * 2] = colors[colorIndex % random()];
-      leds[ledIndex + NUM_LEDS_PER_SEGMENT * 3] = colors[colorIndex % random()];
-      leds[ledIndex + NUM_LEDS_PER_SEGMENT * 4] = colors[colorIndex % random()];
-      leds[ledIndex + NUM_LEDS_PER_SEGMENT * 5] = colors[colorIndex % random()];
-      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 2) * 2] = colors[colorIndex % random(0, 7)];
-      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 3) * 3] = colors[colorIndex % random(0, 7)];
-      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 4) * 4] = colors[colorIndex % random(0, 7)];
-      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 5) * 5] = colors[colorIndex % random(0, 7)];
-      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 2) * 2] = colors[colorIndex % random(0, 7)];
-      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 3) * 3] = colors[colorIndex % random(0, 7)];
-      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 4) * 4] = colors[colorIndex % random(0, 7)];
-      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 5) * 5] = colors[colorIndex % random(0, 7)];
-      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 2) * 2] = colors[colorIndex % random(0, 7)];
-      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 3) * 3] = colors[colorIndex % random(0, 7)];
-      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 4) * 4] = colors[colorIndex % random(0, 7)];
-      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 5) * 5] = colors[colorIndex % random(0, 7)];
+      leds[ledIndex] = colors[colorIndex % NUM_FIRE_COLORS];
+      leds[ledIndex + NUM_LEDS_PER_SEGMENT] = colors[colorIndex % NUM_FIRE_COLORS];
+      leds[ledIndex + NUM_LEDS_PER_SEGMENT * 2] = colors[colorIndex % NUM_FIRE_COLORS];
+      leds[ledIndex + NUM_LEDS_PER_SEGMENT * 3] = colors[colorIndex % NUM_FIRE_COLORS];
+      leds[ledIndex + NUM_LEDS_PER_SEGMENT * 4] = colors[colorIndex % NUM_FIRE_COLORS];
+      leds[ledIndex + NUM_LEDS_PER_SEGMENT * 5] = colors[colorIndex % NUM_FIRE_COLORS];
+      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 2) * 2] = colors[colorIndex % NUM_FIRE_COLORS];
+      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 3) * 3] = colors[colorIndex % NUM_FIRE_COLORS];
+      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 4) * 4] = colors[colorIndex % NUM_FIRE_COLORS];
+      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 5) * 5] = colors[colorIndex % NUM_FIRE_COLORS];
+      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 2) * 2] = colors[colorIndex % NUM_FIRE_COLORS];
+      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 3) * 3] = colors[colorIndex % NUM_FIRE_COLORS];
+      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 4) * 4] = colors[colorIndex % NUM_FIRE_COLORS];
+      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 5) * 5] = colors[colorIndex % NUM_FIRE_COLORS];
+      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 2) * 2] = colors[colorIndex % NUM_FIRE_COLORS];
+      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 3) * 3] = colors[colorIndex % NUM_FIRE_COLORS];
+      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 4) * 4] = colors[colorIndex % NUM_FIRE_COLORS];
+      leds[ledIndex + (NUM_LEDS_PER_SEGMENT / 5) * 5] = colors[colorIndex % NUM_FIRE_COLORS];
     }
 
     ledIndex++;

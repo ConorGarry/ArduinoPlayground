@@ -40,3 +40,33 @@ void spencerSparkle() {
   }
   FastLED.show();
 }
+
+// Galaxy: spencerSparkle re-tuned — rarer star births and a slower
+// grow/fade so most LEDs are dark at any moment (the night sky between
+// the stars). Shares the starBrightness/starGrowing arrays with
+// spencerSparkle; only one pattern is rendering at a time.
+#define GALAXY_MAX_BRIGHTNESS 200
+void galaxy() {
+  for (int i = 0; i < NUM_LEDS; i++) {
+    if (starBrightness[i] == 0 && random8() < 1) {
+      starBrightness[i] = 1;
+      starGrowing[i] = true;
+    }
+
+    if (starGrowing[i]) {
+      starBrightness[i] += 1;
+      if (starBrightness[i] >= GALAXY_MAX_BRIGHTNESS) {
+        starBrightness[i] = GALAXY_MAX_BRIGHTNESS;
+        starGrowing[i] = false;
+      }
+    } else if (starBrightness[i] > 0) {
+      starBrightness[i] -= 1;
+      if (starBrightness[i] <= MIN_BRIGHTNESS) {
+        starBrightness[i] = 0;
+      }
+    }
+
+    leds[i] = CRGB(starBrightness[i], starBrightness[i], starBrightness[i]);
+  }
+  FastLED.show();
+}

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <title>Infinity / Meta Sonic Flux</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main id="app">
+    <header>
+      <h1>Infinity <span class="dot">·</span> Meta Sonic Flux</h1>
+    </header>
+
+    <!-- Takeover gate. Shown on load; tapping runs a 3s countdown, then the
+         phone claims control of the lights and the question flow begins. -->
+    <section id="takeover" class="takeover" aria-live="polite">
+      <p id="takeover-blurb" class="takeover-blurb">Run the lights from your phone?</p>
+      <button id="btn-takeover" type="button" class="takeover-btn">Take over the lights</button>
+      <p id="takeover-count" class="takeover-count hidden" aria-live="assertive"></p>
+    </section>
+
+    <section id="card" class="card" aria-live="polite">
+      <p id="question" class="question">Loading…</p>
+
+      <!-- Binary Yes/No ---------------------------------------------- -->
+      <div id="binary-input" class="buttons">
+        <button id="btn-yes" type="button" class="yes" disabled>Yes</button>
+        <button id="btn-no"  type="button" class="no"  disabled>No</button>
+      </div>
+
+      <!-- Free-text riddle ------------------------------------------- -->
+      <form id="riddle-input" class="riddle hidden" autocomplete="off">
+        <input id="riddle-text"
+               type="text"
+               inputmode="text"
+               autocomplete="off"
+               autocapitalize="off"
+               autocorrect="off"
+               spellcheck="false"
+               placeholder="type your answer…"
+               aria-label="riddle answer">
+        <button id="btn-submit" type="submit" class="submit">Answer</button>
+        <p id="riddle-hint" class="hint" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section id="response" class="response hidden" aria-live="polite">
+      <p id="response-emoji" class="response-emoji" aria-hidden="true"></p>
+      <p id="response-msg"   class="response-msg"></p>
+      <p id="response-sub"   class="response-sub hidden"></p>
+      <p class="look-up">Look up <span aria-hidden="true">↑</span></p>
+      <button id="btn-again" type="button" class="again">and i go at it again</button>
+    </section>
+
+    <!-- Fire-ritual finale stage. innerHTML is swapped per screen by app.js.
+         Hidden during normal question flow; takes over the viewport when
+         the answer threshold is hit. -->
+    <section id="fire-stage" class="fire-stage hidden" aria-live="polite"></section>
+
+    <footer>
+      <p id="stats" class="stats"></p>
+    </footer>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

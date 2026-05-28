@@ -1,35 +1,64 @@
-### Instructions
+# Infinity / Meta Sonic Flux
+
+This is the code for **Infinity / Meta Sonic Flux** - a big 12-faced pentagonal
+LED sculpture (a dodecahedron) built for festivals. There are **30 LED "runs"**
+between the vertices, **2,130 LEDs** in total, and the whole thing is driven by
+a **Teensy 4.1** running the FastLED library through an OctoWS2811 adapter.
+
+There's also an optional **ESP32 sidecar** that turns it into something the
+crowd can play with: it broadcasts an open WiFi network, and anyone who joins
+gets a little web app on their phone - no install needed - where they answer
+playful questions and watch the lights react. That whole side of things has
+its own deep-dive doc: [docs/ESP32-Web-App.md](docs/ESP32-Web-App.md), with a
+sister doc [docs/ESP32-Web-App-Mic-Riddle.md](docs/ESP32-Web-App-Mic-Riddle.md)
+for the parked mic + riddle path. This README is the friendly starting point -
+what it is, how to build and flash it, how to drive it and how to wire it
+without chasing glitches.
 
 ## IDE
-You can use whatever you want, I'd recommend downloading the Arduino IDE as it has some good examples with it,
-but for actual dev work I find VSCode with PlatformIO add-on better to work with.
 
-- [Official Arduino IDE](https://www.arduino.cc/en/software)
-- [Visual Studio Code](https://code.visualstudio.com/)
-  - [PlatformIO extension](https://platformio.org/)
-  - [Wowki VSCode extension](https://docs.wokwi.com/vscode/getting-started)
+Use whatever you're comfortable with. The [Arduino IDE](https://www.arduino.cc/en/software)
+is great to start with because it ships with good examples, but for real dev
+work I find [VS Code](https://code.visualstudio.com/) with the [PlatformIO extension](https://platformio.org/) much nicer - that's what the
+project is set up for. [FastLED](https://fastled.io/) is the C++ library doing
+all the heavy lifting on the LEDs; PlatformIO pulls it in for you automatically.
 
-[FastLED Library](https://fastled.io/) is the C++ library we're using to control the LEDs, you can install it through the Arduino IDE or PlatformIO.
+## Getting started
 
-## Simulation
-We can simulate the lighting setup using [wokwi.com](https://www.wokwi.com). It's free to start an account and you can create multiple projects.
-Chrome is recommended over other browsers as apparently it yields the best performance. It is quite resource-heavy so I'd recommend closing any applications and tabs that are not being used to free up memory and processing power for the simulator.
+You don't strictly need a GitHub account, but I'd recommend it - it's free and
+lets you watch the project so you get an email whenever something changes (click
+**Watch → All Activity**). Clone the repo, make a branch, and work away; we can
+sort out any mess with reverts if needed.
 
-### Wokwi VSCode Extension
-We can now use the Wokwi VSCode extension to simulate the lights, which is much more convenient than using the website. It requires a license key but it's free, follow the [steps](https://docs.wokwi.com/vscode/getting-started#installation) here to get up and running. The license expires after 30 days but it's free to renew it.
+No GitHub? You can download a zip and open it in VS Code, then re-grab a fresh
+zip when changes come in. Either way works.
 
-## Getting Started
-You don't need a Github but I would recommend it, it's free and it lets you subscribe to changes in the project so you'll get an email whenever there's a change, but if you don't want to start one or use your own, then that's totally fine.
+## What you're working with
 
-If using Github, clone the project and work away, create branches and pull requests if you want, or just commit directly, we can fix any issues with reverts if needed.
+A quick tour of the hardware so the numbers in the code make sense:
 
-To subscribe to changes, click on the `Watch` button with the eye symbol, and select `All Activity`.  You'll get email notifications when new changes have been made.
+| | |
+|---|---|
+| Shape | Dodecahedron - **12 pentagonal faces** |
+| LED runs | **30** "runs" between the vertices (5 per segment × 6 segments) |
+| LEDs per run | **71** |
+| **Total LEDs** | **2,130** |
+| LED type | WS2815 (12 V strips), driven with the WS2811 800 kHz protocol |
+| Brain | **Teensy 4.1** (not an Arduino - see the simulation note below) |
+| LED driver | OctoWS2811 adapter, running **6 parallel outputs** |
+| Pattern select | **3 toggle switches** on the operator panel → 8 modes |
 
-If not using Github account, you can download a zip of the codebase and open it in VSCode, and make your changes. When external changes come in, you'll either need to download a new zip, or just manually copy paste from Github in the browser.
+Because there are so many LEDs, we can't drive them all from one pin - there
+isn't enough juice or timing headroom. So we split them into **6 segments and
+drive them in parallel** (OctoWS2811 does this with DMA, which is what keeps the
+animation smooth). Each segment is 5 runs × 71 LEDs = **355 LEDs**.
 
-If you don't want to bother with any of this, you can directly copy paste code from the Github directly into Wokwi in the browser and make your changes there, then send on the code however you want, e.g. link to you Wokwi project, zip and add to whatsapp, or add a comment in Github and paste it there.
-
-There are two files you need to run the project, currently they are `main_parallel.cpp`, which is the code of the project, and `diagram_parallel.cpp` which is the schema for the simulation (which won't be changed that often).
+The one array you actually write to is the big flat `CRGB leds[NUM_LEDS]` in the
+code - that's the source of truth. All the constants (`NUM_LEDS`,
+`NUM_LEDS_PER_SEGMENT`, etc.) live in [src/led.h](src/led.h), and there are handy
+groupings (`pentagons[]`, `allVerticals[]`, `allStrips[]`) that are just views
+into `leds[]` for when you want to think in faces or strips instead of one long
+line.
 
 ## Steps
 1. Create a [new project in Wokwi](https://wokwi.com/projects/new) using Arduino Mega.
@@ -43,205 +72,332 @@ _Note: Due to the scale of the project, you'll need to zoom in and out a lot to 
 
 At this point, you'll see it's running the default mode (0) which is the `rainbowChase()` function.
 
-## Switches (be trippin')
-There are 5 on/off state switches for selecing the 32 (5^2) different modes.
-The simulator uses slide switches, which have simple persisted on/off states, on = 1, off = 0, the real-life model will use same principle.
 
-<img width="330" alt="Screenshot 2024-04-26 at 17 59 34" src="https://github.com/ConorGarry/ArduinoPlayground/assets/6222596/6ab3674e-ffe4-40d1-9913-c9ce0abdef77">  
+## Where everything lives
 
-_5 Switches in sequence, representing 5 binary digits._
-
-
-<img width="79" alt="Screenshot 2024-04-26 at 17 59 40" src="https://github.com/ConorGarry/ArduinoPlayground/assets/6222596/9655d0b6-bd6e-4abe-8392-2d4061ac535c">  
-
-_Switch in *off* position, or `0` value_
-
-
-<img width="69" alt="Screenshot 2024-04-26 at 17 59 49" src="https://github.com/ConorGarry/ArduinoPlayground/assets/6222596/4c7a6031-4fad-43d2-b564-185ec64131cd">  
-
-_Switch in *on* position, or `1` value_
-
-
-Using this pattern, we can use the switches to represent a 5 digit binary number. So to select between the first four (because at time of writing this there are four patterns), the switches would be set accordingly:
-
-|Binary Value| Mode |
-|-|-|
-|`00000`|`0`|
-|`00001`|`1`|
-|`00010`|`2`|
-|`00011`|`3`|
-|`00100`|`4`|
-
-- The switches are only toggleable when the simulator is running, they won't change when it is paused.
-- If the simulator has been stopped, the state will be persisted, i.e. next time you press play, it will resume with the most recent pattern you had selected.
-- The switches are quite small, so you'll be zooming in and out a lot, get used to whatever shortcut you use for that, be it keyboard or touchpad.
-
-## Contributing Changes
-First of all, have a read of the code, specifically the `switch` statement in the `selectMode()` function. This is what is run on every loop. It reads in the switch states and converts it to a number between `0` and `31` inclusive. A change of a switch will trigger this to select a different number, and subsequently a different function.
-
-```cpp
-switch (mode) {
-    case 0:
-      rainbowChase();
-      break;
-    case 1:
-      multipleTrails();
-      break;
-    case 2:
-      multipleTrails(CRGB::Red);
-      break;
-    case 3:
-      multipleTrails(CRGB::Green);
-      break;
-    case 4:
-      multipleTrails(CRGB::Blue);
-      break;
-    // Add the rest of the case n..31 as needed.
-    default:
-      break;
-  }
+```
+ArduinoPlayground/
+├── platformio.ini          # the Teensy project (FastLED + OctoWS2811)
+├── src/
+│   ├── main.cpp            # the heart of it: setup(), loop(), selectMode(), runPattern()
+│   ├── led.h / led.cpp     # geometry constants + the face/strip/band groupings
+│   ├── teensy4controller.h # glue between FastLED and OctoWS2811 (leave this alone)
+│   ├── webcontrol.{h,cpp}  # talks to the ESP32 over Serial4 (web app commands + status)
+│   ├── beatdetect.{h,cpp}  # mic beat-detector - switched off until the mic is wired
+│   ├── app/                # patterns only the web app can trigger (fire ritual, question reactions, calibrate)
+│   └── conor|dee|denise|spencer/   # everyone's own pattern folder (switch modes 0-7)
+├── esp32/                  # a separate little project for the ESP32 web-app sidecar
+│   └── data/               # the actual web app: index.html, app.js, style.css, questions.json
+├── tools/                  # bench helpers: flash_both.sh, monitor.py, test_bridge.py, check_bridge.py, dev_server.py
+└── docs/
+    ├── ESP32-Web-App.md            # the live web app / bridge spec
+    └── ESP32-Web-App-Mic-Riddle.md # parked mic + riddle path (design + revival recipe)
 ```
 
-To add a new function, you'll need to add a new case to the `switch` statement, and then create the function. Let's say you want to create `rgbChase()` which will chase the RGB colours in sequence.
+The Teensy firmware runs perfectly well on its own - you only need the `esp32/`
+project if you're playing with the web app.
 
-```cpp
-void rgbChase() {
-  // Your code here
+## Building & flashing
+
+Everything runs through PlatformIO (`pio` on the command line, or the buttons in
+the VS Code extension).
+
+**The Teensy** (from the repo root):
+
+```bash
+pio run                      # build
+pio run -t upload            # build + flash (press the little button on the Teensy if it asks)
+pio device monitor -b 9600   # serial debug - only prints when DEBUG_MODE = true in main.cpp
+```
+
+**The ESP32 web app** (from `esp32/`):
+
+```bash
+pio run                                                  # build the firmware
+pio run -t uploadfs --upload-port /dev/cu.usbserial-XXXX # send the web app (data/) to the chip
+pio run -t upload   --upload-port /dev/cu.usbserial-XXXX # flash the firmware
+pio device monitor -b 115200
+```
+
+A couple of things that'll save you a head scratch:
+
+- **Run `uploadfs` before `upload` whenever you change anything in
+  `esp32/data/`.** The web app and `questions.json` live on a separate part of
+  the flash, so a normal firmware upload leaves them untouched. The classic trap
+  is editing a question, flashing, and wondering why it didn't change.
+- **The ESP32 board needs a USB-A → USB-C cable to flash if running a M chip**,
+  not C-to-C - ours is missing the resistors USB-C needs, so a C-to-C cable won't 
+  even show up as a port. Keep a USB-A cable in the kit.
+
+Or just do both boards in one shot:
+
+```bash
+bash tools/flash_both.sh     # Teensy firmware, then ESP32 web app, then ESP32 firmware
+```
+
+## Driving the lights
+
+### The switches (be trippin')
+
+There are **3 toggle switches** on the controller (Teensy pins 0, 1, 23). Read
+together they make a little 3-bit number, which picks the pattern. An **open**
+switch counts as `1`, a **grounded** one as `0`, and the first switch is the
+smallest digit - so all three open is mode 7.
+
+| Switches | Mode | Pattern | Author |
+|---|---|---|---|
+| `000` (all grounded) | 0 | `rainbowChase` | conor |
+| `001` | 1 | `fireFlies` | conor |
+| `010` | 2 | `twinkle` + `comets` | denise |
+| `011` | 3 | `waveVerticalsOverwards` | denise |
+| `100` | 4 | `freePalestineFullBlink` | dee |
+| `101` | 5 | `rainbowFade` | conor |
+| `110` | 6 | `showLights` | dee |
+| `111` (all open) | 7 | `galaxy` (the default) | spencer |
+
+There are a few more patterns (8-15: the fire-ritual stages, the question
+reactions and a bench-only `calibrate` strip-direction tool), but those can
+**only** be reached from the web app, never the switches. See the index map
+in "Adding or updating patterns" below.
+
+### The web app
+
+Plug the ESP32 in and anyone nearby can join the open WiFi network
+(`Enter Infinity`); a captive portal pops a phone friendly page where
+they tap "take over the lights", answer a few goofy questions and watch the
+sculpture respond. While a phone is driving, its choices win - but **the
+operator takes back control instantly** the moment any physical switch is
+flicked. The switches are always boss.
+
+That takeover is gated by `WEB_OVERRIDE_ENABLED` in [src/main.cpp](src/main.cpp) (it's **on**). The 
+status link to the ESP32 always runs in the background; that flag only decides whether the  
+web app's pattern picks are obeyed. The whole experience - questions, takeover,
+fire-ritual finale, the captive-portal magic - is written up in [docs/ESP32-Web-App.md](docs/ESP32-Web-App.md). 
+The parked mic and riddle path lives in its own doc: [docs/ESP32-Web-App-Mic-Riddle.md](docs/ESP32-Web-App-Mic-Riddle.md).
+
+## Wiring it up
+
+### Which pin drives what
+
+The OctoWS2811 adapter decides which Teensy pins carry LED data - we don't get
+to choose. The 6 we use, in order, are in `pinList` in [src/main.cpp](src/main.cpp):
+
+| Segment | Teensy pin | Runs it covers |
+|---|---|---|
+| 1 | 2  | 1–5   |
+| 2 | 14 | 6–10  |
+| 3 | 7  | 11–15 |
+| 4 | 8  | 16–20 |
+| 5 | 6  | 21–25 |
+| 6 | 20 | 26–30 |
+
+### Grounding - please read this, it's the big one
+
+If you ever see **random pixels flickering the wrong colour** scattered around
+the sculpture, that is almost never a bug in the code - it's the LED data line
+losing its clean ground reference. WS2815 strips are fussy about this:
+
+- **Watch out for ground loops - this is the usual cause.** The sneakiest one
+  shows up on the bench: powering the Teensy and the ESP32 from **two separate
+  USB cables while they also share a ground through the bridge wire**. That
+  makes a loop and drags the LED data reference around, and you get the scatter.
+  The fix is to power both boards from the **one shared 5 V rail** with a single
+  common ground. While debugging, you can unplug the bridge ground and watch 
+  the glitches disappear to confirm it.
+- **Keep one clean common ground.** Tie the LED 12 V ground, the controller
+  ground, and the bridge ground together at a single solid point - don't let
+  ground sneak back through a second path.
+- **The usual WS281x good manners help too:** a ~330 Ω resistor in series on the
+  data line at the controller, a short data lead to the first LED with a ground
+  wire running right alongside it, and a fat (~1000 µF) capacitor across the
+  supply where you inject power.
+- **Keep signal wires apart:** route the ESP32 bridge's RX jumper away from the
+  six fast LED data lines, and keep it short.
+
+If it still scatters after all that, the problem is on the data line / first LED
+/ level-shifter side - not the firmware.
+
+### Power, the bridge, and the mic
+
+LED power (12 V) and logic power (5 V) are separate supplies that meet at
+one common ground point. The full power story all live in [docs/ESP32-Web-App.md §2](docs/ESP32-Web-App.md).
+The MAX4466 mic isn't wired yet, so beat detection is off; when it goes in
+it follows [docs/ESP32-Web-App-Mic-Riddle.md §3](docs/ESP32-Web-App-Mic-Riddle.md).
+
+## Adding or updating patterns
+
+Patterns come in two flavours: ones the **operator switches** can pick
+(indices 0-7), and ones only the **web app** can fire (indices 8 and up:
+the fire-ritual stages, the question reactions and the bench-only
+`calibrate` tool). The one place that maps a numeric index to a function is
+`runPattern()` in [src/main.cpp](src/main.cpp), shared by both paths, so an
+index always means the same thing on both sides.
+
+Everyone gets their own folder so we don't step on each other:
+`src/<your-name>/<your-name>_patterns.{h,cpp}`. A pattern is just a function
+that fills the global `CRGB leds[NUM_LEDS]` array and calls `FastLED.show()`.
+
+### What's already mapped
+
+This is the current index → function table. Don't pick a number that's
+taken unless you're explicitly replacing something.
+
+| Index | Where it lives | Function | Notes |
+|---|---|---|---|
+| 0 | conor | `rainbowChase` | switch `000` |
+| 1 | conor | `fireFlies` | switch `001` |
+| 2 | denise | `twinkle` + `comets` | switch `010` |
+| 3 | denise | `waveVerticalsOverwards` | switch `011` |
+| 4 | dee | `freePalestineFullBlink` | switch `100` |
+| 5 | conor | `rainbowFade` | switch `101` |
+| 6 | dee | `showLights` | switch `110` |
+| 7 | spencer | `galaxy` | switch `111` (default) |
+| 8 | app | `dimAmbient` | fire-ritual transition |
+| 9 | app | `fireFull` | fire-ritual fire |
+| 10 | app | `idleAmbient` | fire-ritual post-finale |
+| 11 | app | `wormYes` | Q1 yes reaction |
+| 12 | app | `wormNo` | Q1 no reaction |
+| 13 | app | `scrunch` | Q2 no reaction |
+| 14 | app | `fold` | Q2 yes reaction |
+| 15 | app | `calibrate` | bench-only strip-direction read-off |
+
+### Adding a switch-selectable pattern (indices 0-7)
+
+Heads up: **all 8 switch slots are taken** today. Adding a new
+switch-selectable pattern means replacing one above. Talk to the author
+first (the table tells you who).
+
+Say you want a `rgbChase()` of your own and you've agreed to take over
+index 5:
+
+1. Write `void rgbChase()` in your folder and include your header in
+   [src/main.cpp](src/main.cpp).
+2. Replace the existing `case 5` line in `runPattern()`:
+
+   ```cpp
+   void runPattern(int idx) {
+     switch (idx) {
+       // ... existing cases ...
+       case 5: rgbChase(); break;   // was rainbowFade()
+       default: galaxy(); break;
+     }
+   }
+   ```
+
+3. Flash the Teensy (`pio run -t upload`) and flick switches `101`.
+
+### Adding a web-app-only pattern (indices 8 and up)
+
+Same idea, but the pattern lives in [src/app/](src/app/) and gets a named
+ID in [src/app/app_patterns.h](src/app/app_patterns.h) so the Teensy
+firmware and the web app's `questions.json` agree on which number means
+which pattern.
+
+1. Write your function in
+   [src/app/app_patterns.cpp](src/app/app_patterns.cpp) (e.g.
+   `void slimeWave()`).
+2. Give it a named ID and forward-declare it in
+   [src/app/app_patterns.h](src/app/app_patterns.h). Pick the next free
+   number (16, since `CALIBRATE` is 15):
+
+   ```cpp
+   namespace app_patterns {
+     constexpr int SLIME_WAVE = 16;   // next free index after CALIBRATE
+   }
+   void slimeWave();
+   ```
+
+3. Add a `case` to `runPattern()` in [src/main.cpp](src/main.cpp):
+
+   ```cpp
+   case SLIME_WAVE: slimeWave(); break;
+   ```
+
+4. Bump `MAX_PATTERN_INDEX` in
+   [src/webcontrol.cpp](src/webcontrol.cpp) if your new index is higher
+   than the current cap (`app_patterns::CALIBRATE`). The bridge rejects
+   anything above this constant before dispatch, so skipping this step
+   makes your pattern silently unreachable from the web app.
+5. Point a question (or fire-ritual stage) at it from
+   [esp32/data/questions.json](esp32/data/questions.json), see the next
+   section.
+6. Flash **both** sides: `bash tools/flash_both.sh`, or by hand:
+   `pio run -t upload` from the repo root for the Teensy, then
+   `pio run -t uploadfs` from `esp32/` to push the updated
+   `questions.json`.
+
+### Editing the questions (the data-only case)
+
+This is the most common change: you're not touching firmware, just rewording a
+question or swapping which pattern its yes/no fires. Edit
+[esp32/data/questions.json](esp32/data/questions.json), then from `esp32/`:
+
+```bash
+pio run -t uploadfs --upload-port /dev/cu.usbserial-XXXX
+```
+
+`uploadfs` rewrites just the data partition where the web app lives - the
+firmware stays untouched. **Don't skip this step**: a regular `pio run -t
+upload` does not push `data/` changes, so editing a question and only doing a
+firmware flash leaves the old text on the chip. Classic trap.
+
+Anatomy of a question:
+
+```json
+{
+  "id": 1,
+  "type": "binary",
+  "q": "Would you still love me if I was a worm?",
+  "yes": { "msg": "Love is all the colours! Slurp the rainbow.", "pattern": 11 },
+  "no":  { "msg": "You broke my heart. Bye.",                    "pattern": 12 }
 }
 ```
 
-```cpp
-switch (mode) {
-    // ... cases 0-4 removed for brevity.
-    case 5:
-      rgbChase();
-      break;
-    default:
-      break;
-  }
-```
+- `pattern` is the same index used by `runPattern()` - e.g. `11` fires
+  `wormYes()`. Add your new web-app pattern's ID here to wire it up.
+- Optional `yes.label` / `no.label` override the default "Yes" / "No" button
+  text (used for the "fold vs scrunch" question).
+- To **temporarily disable** a question without deleting it, move the entry
+  from `questions[]` into `_disabled_questions[]`. The firmware only reads
+  `questions[]`; the disabled array is just a parking lot.
+- Bump the top-level `version` number when you change content - it's a useful
+  signal during debugging that the on-device copy is current.
 
-Now when you select `000101` (`5`) on the switches, it will run the `rgbChase()` function.
+### A couple of general tips
 
-- Functions have to be declared before they are used, so if you're adding a new function, make sure it's above the `selectMode` statement.
-- For readability, it's best to keep the functions in the same order as the cases in the `switch` statement.
-- Given that there will eventually be 32 functions, I'll probably look to moving them to a different file and using imports, which will clean up this main file. (Though I'm not sure if wokwi supports multiple files yet).
+- Use `leds[]` for whole-sculpture patterns, and the named groupings
+  (`pentagons[i]`, `allVerticals[]`, `allStrips[]`) when you want to work in
+  faces or strips.
+- Heads up: `leds1..leds6` are **legacy** per-segment buffers that don't drive
+  the output any more - reach for `allStrips[]` if you need per-strip access.
+- Keep your `case` blocks in numeric order; future-you will thank present-you.
 
-## Implementing a Function/Pattern
-_"Pattern" and "function" are interchangeable terms, "Pattern" is what we'd refer to in real-life, "function" is a programming way of defining a body of work, in this case, a "pattern"._
+## Simulating it (Wokwi)
 
-### Code Overview
-Before adding your pattern, take a look at what the code is already doing in the setup. Here's an overview:
+There's a [Wokwi](https://docs.wokwi.com/vscode/getting-started) wiring file
+(`diagram.json`) for quick visual testing without the real rig. Build first,
+then run **"Wokwi: Start Simulator"** from the VS Code command palette. One
+caveat: Wokwi simulates an **Arduino Mega**, not a Teensy, so timing and
+behaviour can differ - treat it as a rough preview, not gospel. (It's also
+resource-heavy, so close other tabs to give it room.)
 
-```c
-#define RUNS 30
-#define NUM_LEDS 2160
-#define NUM_LEDS_PER_STRIP 72
-#define NUM_LEDS_PER_SEGMENT 360
-```
-This simply defines the constants for the number of LEDs in the setup. Pretty self-explanatory. They will come in handy when you're writing your pattern.
+## Useful reference images
 
-
-```c
-// Define the data pins for the LED strips
-#define DP_1 7
-#define DP_2 8
-#define DP_3 9
-#define DP_4 10
-#define DP_5 11
-#define DP_6 12
-```
-This defines the data pins (hence **DP**) for the LED strips. Due to limited resources on the micro controllers, we can't simply have one long array for every LED, so we have to use **parallel output** technique where we split them in separate segments and control them in parallel. In our case, seeing as we have **30** runs, we have **6** segments of **5** runs each.
-The pins are in sequence, so `DP_1` is the first segment, `DP_2` is the second, etc.
-
-Note that this is based on Arduino, which is not the microcontroller we're using, but it will be the same principle, only the number values may differ in the final implementation. It'll still be six data pins in sequence.
-
-
-```cpp
-CRGB leds1[NUM_LEDS_PER_SEGMENT];
-CRGB leds2[NUM_LEDS_PER_SEGMENT];
-CRGB leds3[NUM_LEDS_PER_SEGMENT];
-CRGB leds4[NUM_LEDS_PER_SEGMENT];
-CRGB leds5[NUM_LEDS_PER_SEGMENT];
-CRGB leds6[NUM_LEDS_PER_SEGMENT];
-```
-This defines the arrays for the LEDs in each segment. Each segment has 360 LEDs, so we have an array of 360 LEDs for each segment. This is where you'll be writing your patterns to.
-CRGB is a struct from the FastLED library, which is used to define the colour of the LEDs. It has three values, `r`, `g`, and `b`, which are the red, green, and blue values respectively. Each value is between 0 and 255, so a colour is defined by three numbers. So `leds1` for example, is an array of 360 LEDs, each with a colour defined by three numbers contained in the CRGB.
-
-```cpp
-void setup() {
-  // Initialize the LED strip
-  FastLED.addLeds<LED_TYPE, DP_1, COLOR_ORDER>(leds1, NUM_LEDS_PER_SEGMENT);
-  FastLED.addLeds<LED_TYPE, DP_2, COLOR_ORDER>(leds2, NUM_LEDS_PER_SEGMENT);
-  FastLED.addLeds<LED_TYPE, DP_3, COLOR_ORDER>(leds3, NUM_LEDS_PER_SEGMENT);
-  FastLED.addLeds<LED_TYPE, DP_4, COLOR_ORDER>(leds4, NUM_LEDS_PER_SEGMENT);
-  FastLED.addLeds<LED_TYPE, DP_5, COLOR_ORDER>(leds5, NUM_LEDS_PER_SEGMENT);
-  FastLED.addLeds<LED_TYPE, DP_6, COLOR_ORDER>(leds6, NUM_LEDS_PER_SEGMENT);
-  FastLED.setMaxRefreshRate(0);
-  FastLED.clear();
-}
-```
-The `setup()` function is only run once when the program starts. It initializes the LED strips and sets the refresh rate to 0, which means it will run as fast as possible. It also clears the LEDs, so they are all off when the program starts.
-
-It also adds the leds to the FastLED library, which is what controls the LEDs (saving us **a lot** of complexity). The `addLeds` function takes the type of LED, the data pin, the colour order, the array of LEDs, and the number of LEDs in the array. The `LED_TYPE` and `COLOR_ORDER` are defined elsewhere in the code, but you don't need to worry about them, they're just settings for the FastLED library.
-
-```cpp
-void loop() {
-  FastLED.show();
-  selectPattern();
-}
-```
-The loop function is run continuously, it shows the LEDs (i.e. updates them with the new colours) and then runs the `selectPattern()` function, which is the `switch` statement we talked about earlier.  
-
----
-
-As a simple demonstration, here's a non-animated pattern that lights up the different segments in red, green, blue, yellow, purple, and white.
-
-```cpp
-void rgbypwSegments() {
-  // Iterate all segments and light up the LEDs with different colours.
-  for (int i = 0; i < NUM_LEDS_PER_SEGMENT; i++) {
-    leds1[i] = CRGB::Red;
-    leds2[i] = CRGB::Green;
-    leds3[i] = CRGB::Blue;
-    leds4[i] = CRGB::Yellow;
-    leds5[i] = CRGB::Purple;
-    leds6[i] = CRGB::White;
-  }
-  FastLED.show();
-}
-```
-Then placed in the `switch` statement:
-
-```cpp
-switch (mode) {
-    // ... cases 0-4 removed for brevity.
-    case 5:
-      rgbypwSegments();
-      break;
-    default:
-      break;
-  }
-```
-
-Setting the switches to `000101` will now light up the segments in the different colours.
-This is static, so it won't animate, but it's a good starting point to get used to the codebase and how to access the different segments.
-
-<img width="837" alt="Screenshot 2024-04-27 at 10 26 40" src="https://github.com/ConorGarry/ArduinoPlayground/assets/6222596/45f50572-b8f7-4c31-b442-de2e5795af01">
-
-
-## Useful Reference Images
 #### Run numbers
 ![infinity_run_numbers](https://github.com/ConorGarry/ArduinoPlayground/assets/6222596/84512191-e1bc-4627-b7ac-c1138d38c3a0)
 
-#### Face Numbers
+#### Face numbers
 <img width="684" alt="infinity_face_numbers" src="https://github.com/ConorGarry/ArduinoPlayground/assets/6222596/916eca12-055a-48eb-bf59-4939c64422fd">
 
 #### Wiring diagram
 ![Infinity_diagram](https://github.com/ConorGarry/ArduinoPlayground/assets/6222596/5d0f5aef-1128-4305-bdec-b8db443cf0af)
 
-#### Parallel Segments
-Note that this is only a reference to the different parallel outputs we require, it's not really something you should design a pattern against, just useful to know which wire is which so it can be mapped in code.
+#### Parallel segments
+![infinity-parallel-segments](https://github.com/ConorGarry/ArduinoPlayground/assets/6222596/29cab9f7-5643-40b3-b56c-9d57e36bf4d8)
+
+_The colours here are just a visual aid for which parallel output is which - map
+them to the real pin order in the table above, not the old DP_1..6 pins the
+legacy diagram shows._
 
 |Data Pin|Field Name|Colour|
 |-|-|-|
@@ -252,8 +408,13 @@ Note that this is only a reference to the different parallel outputs we require,
 |`11`|`DP_5`|`Purple`|
 |`12`|`DP_5`|`White`|
 
-<img width="837" alt="infinity-parallel-segments" src="https://github.com/ConorGarry/ArduinoPlayground/assets/6222596/29cab9f7-5643-40b3-b56c-9d57e36bf4d8">
 
 ## Resources
-- [FastLed documentation](http://fastled.io/docs/)
-- [FastLED basics YouTube Tutorial Series](https://www.youtube.com/watch?v=4Ut4UK7612M&list=PLgXkGn3BBAGi5dTOCuEwrLuFtfz0kGFTC) <- I **highly** recommend this! He's a great tutor, explains everything very well.
+
+- [FastLED documentation](http://fastled.io/docs/)
+- [FastLED basics YouTube series](https://www.youtube.com/watch?v=4Ut4UK7612M&list=PLgXkGn3BBAGi5dTOCuEwrLuFtfz0kGFTC) - I **highly** recommend this one; he explains everything really well.
+- [OctoWS2811 (the Teensy parallel LED driver)](https://www.pjrc.com/teensy/td_libs_OctoWS2811.html)
+- [Wokwi VS Code extension](https://docs.wokwi.com/vscode/getting-started)
+- The live web-app / bridge spec: [docs/ESP32-Web-App.md](docs/ESP32-Web-App.md)
+- The parked mic + riddle path: [docs/ESP32-Web-App-Mic-Riddle.md](docs/ESP32-Web-App-Mic-Riddle.md)
+- Tools and bench scripts: [tools/README.md](tools/README.md)

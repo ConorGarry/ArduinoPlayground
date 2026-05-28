@@ -1,0 +1,75 @@
+{
+    // Tasks for flashing the boards. The status-bar buttons are provided by the
+    // "actboy168.tasks" extension (see .vscode/extensions.json). Install it, then
+    // click "⚡ Flash Both" in the bottom status bar.
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Flash Both Boards",
+            "detail": "Teensy firmware → ESP32 LittleFS → ESP32 firmware (press the Teensy's white button when prompted)",
+            "type": "shell",
+            "command": "${workspaceFolder}/tools/flash_both.sh",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true,
+                "focus": true
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            // actboy168.tasks status-bar config
+            "options": {
+                "statusbar": {
+                    "label": "$(zap) Flash Both",
+                    "tooltip": "Flash Teensy + ESP32 (firmware + filesystem)",
+                    "color": "#f9c74f"
+                }
+            }
+        },
+        {
+            "label": "Flash ESP32 only",
+            "detail": "ESP32 LittleFS image + firmware (no Teensy)",
+            "type": "shell",
+            "command": "${env:HOME}/.platformio/penv/bin/pio run -t uploadfs && ${env:HOME}/.platformio/penv/bin/pio run -t upload",
+            "options": {
+                "cwd": "${workspaceFolder}/esp32",
+                "statusbar": {
+                    "label": "$(broadcast) ESP32",
+                    "tooltip": "Flash ESP32 only (filesystem + firmware)",
+                    "color": "#90be6d"
+                }
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true,
+                "focus": true
+            }
+        },
+        {
+            "label": "Flash Teensy only",
+            "detail": "Build + upload Teensy firmware (press the white button when prompted)",
+            "type": "shell",
+            "command": "${env:HOME}/.platformio/penv/bin/pio run -t upload",
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "statusbar": {
+                    "label": "$(circuit-board) Teensy",
+                    "tooltip": "Build + flash Teensy 4.1 only",
+                    "color": "#577590"
+                }
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true,
+                "focus": true
+            }
+        }
+    ]
+}

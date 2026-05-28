@@ -1,0 +1,37 @@
+{
+  "version": 4,
+  "_note": "Pattern indices map to the Teensy flat bank (runPattern() in main.cpp). 0–7 are the operator/button bank (shared with switches). 8–10 are the fire-ritual finale (dimAmbient/fireFull/idleAmbient). 11–14 are question-reaction patterns (wormYes/wormNo/scrunch/fold). Optional yes.label / no.label override the default 'Yes' / 'No' button text.",
+  "_disabled_note": "Parked while the MAX4466 mic is unwired: the mic riddle is removed from the live pool. To re-enable, move the entry from _disabled_questions back into questions[]. The firmware reads ONLY questions[]; _disabled_questions is ignored. Data-only change — re-run `pio run -t uploadfs` to apply.",
+  "_disabled_questions": [
+    {
+      "id": 99,
+      "type": "riddle",
+      "q": "I have no mouth, but I hear every word. I have no ears, but I catch every sound. Speak to me, and the lights will dance. What am I?",
+      "answers": ["mic", "microphone", "mike", "the mic", "a mic"],
+      "success": {
+        "msg": "You've activated the beat!",
+        "action": "BEAT:on",
+        "pattern": 7
+      },
+      "fail_msg": "Not quite… listen closer.",
+      "max_attempts": 3,
+      "reveal_msg": "The answer was the mic. 🎤"
+    }
+  ],
+  "questions": [
+    {
+      "id": 1,
+      "type": "binary",
+      "q": "Would you still love me if I was a worm?",
+      "yes": { "msg": "Love is all the colours! Slurp the rainbow.", "pattern": 11 },
+      "no":  { "msg": "You broke my heart. Bye.", "pattern": 12 }
+    },
+    {
+      "id": 2,
+      "type": "binary",
+      "q": "Do you fold or scrunch?",
+      "yes": { "label": "Fold",    "msg": "The correct answer.", "pattern": 14 },
+      "no":  { "label": "Scrunch", "msg": "You dirty turd!",     "pattern": 13 }
+    }
+  ]
+}

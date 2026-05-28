@@ -112,7 +112,7 @@ void showLights() {
     static int scroll = 0;
     scroll++;
     FastLED.show();
-    for (int i = scroll % 5; i < NUM_LEDS - 1; i += 5)
+    for (int i = scroll % 5; i < NUM_LEDS_PER_SEGMENT; i += 5)
     {
         leds[i] = CRGB::Black;
         leds[i+NUM_LEDS_PER_SEGMENT] = CRGB::Black;
