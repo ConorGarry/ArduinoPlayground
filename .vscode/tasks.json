@@ -51,6 +51,27 @@
             }
         },
         {
+            "label": "Preview Web App in Chrome",
+            "detail": "Run the ESP32 web app locally (mocked API + questions) and open it in Chrome at http://localhost:8080/",
+            "type": "shell",
+            "command": "(sleep 0.8 && open -a 'Google Chrome' http://localhost:8080/) & exec python3 ${workspaceFolder}/tools/dev_server.py --port 8080",
+            "isBackground": false,
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true,
+                "focus": false
+            },
+            "options": {
+                "statusbar": {
+                    "label": "$(browser) Preview",
+                    "tooltip": "Run dev_server + open the ESP32 web app in Chrome (Ctrl-C in the task panel to stop)",
+                    "color": "#FF0099"
+                }
+            }
+        },
+        {
             "label": "Flash Teensy only",
             "detail": "Build + upload Teensy firmware (press the white button when prompted)",
             "type": "shell",

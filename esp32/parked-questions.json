@@ -1,0 +1,15 @@
+{
+  "_note": "ARCHIVE ONLY — this file is NOT uploaded to the ESP (it lives outside esp32/data/, so `pio run -t uploadfs` never sees it). Questions parked here are preserved in git but cost zero ESP storage/bandwidth. The Teensy patterns they reference still exist in firmware (src/app/app_patterns.cpp), so re-enabling is a pure data change.",
+  "_how_to_restore": "Copy the desired entry from parked[] back into the questions[] array of esp32/data/questions.json, then run `pio run -t uploadfs`. No Teensy re-flash needed — the pattern indices below already exist in the live firmware bank.",
+  "parked": [
+    {
+      "_parked_on": "2026-06-06",
+      "_reason": "Removed from the live app to de-clutter the question pool. Teensy patterns 13 (scrunch) / 14 (fold) remain in firmware (app_patterns.cpp scrunch()/fold()) and are ready to reuse.",
+      "id": 2,
+      "type": "binary",
+      "q": "Are you a folder or a scruncher?",
+      "yes": { "label": "Folder",    "msg": "We love order.", "pattern": 14 },
+      "no":  { "label": "Scruncher", "msg": "You dirty turd!",     "pattern": 13 }
+    }
+  ]
+}

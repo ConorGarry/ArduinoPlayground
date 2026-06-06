@@ -65,6 +65,11 @@ void runPattern(int idx) {
     case SCRUNCH:      scrunch();     break;
     case FOLD:         fold();        break;
     case CALIBRATE:    calibrate();   break;
+    case PAINT_MONET:    paintMonet();    break;
+    case PAINT_PICASSO:  paintPicasso();  break;
+    case PAINT_DALI:     paintDaliCascade();  break;   // A/B test: was paintDali();
+    case PAINT_DA_VINCI: paintDaVinci();  break;
+    case TURN_IT_UP:     turnItUp();      break;
     default:           galaxy();      break;
   }
 }

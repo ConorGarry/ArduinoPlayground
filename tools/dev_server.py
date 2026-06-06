@@ -340,6 +340,10 @@ def make_handler(state: State):
                     self._answer_riddle(q, answer)
                     return
 
+                if q.get("type") == "choice":
+                    self._answer_choice(q, answer)
+                    return
+
                 if answer not in ("yes", "no"):
                     self.send_json(400, {"error": "need yes/no"})
                     return
@@ -359,6 +363,20 @@ def make_handler(state: State):
             else:
                 state.total_no += 1
             self.send_json(200, {"ok": True, "msg": msg, "pattern": pattern})
+
+        def _answer_choice(self, q: dict, choice_id: str):
+            wanted = (choice_id or "").lower().strip()
+            for opt in q.get("options", []) or []:
+                oid = str(opt.get("id", "")).lower().strip()
+                if oid != wanted:
+                    continue
+                pattern = opt.get("pattern", -1)
+                msg = opt.get("msg", "")
+                if pattern >= 0:
+                    state.send_bridge_line(f"P:{pattern}")
+                self.send_json(200, {"ok": True, "msg": msg, "pattern": pattern})
+                return
+            self.send_json(400, {"error": "unknown choice"})
 
         def _answer_riddle(self, q: dict, user_ans: str):
             normalized = user_ans.lower().strip()

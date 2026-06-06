@@ -1,13 +1,14 @@
-// Vanilla JS — no framework. ~3KB.
+// Vanilla JS — no framework. Drives the meta sonic flux captive portal.
 //
 // Question routing:
-//   type=binary (or absent) → Yes/No buttons → POST /api/answer { answer:"yes"|"no" }
+//   type=binary (or absent) → yes/no buttons → POST /api/answer { answer:"yes"|"no" }
 //   type=riddle             → free-text input → POST /api/answer { answer:"<text>" }
 //                             client tracks attempts; reveals + advances on max_attempts
 
 (() => {
   const $q          = document.getElementById('question');
   const $binary     = document.getElementById('binary-input');
+  const $choice     = document.getElementById('choice-input');
   const $riddle     = document.getElementById('riddle-input');
   const $riddleText = document.getElementById('riddle-text');
   const $riddleHint = document.getElementById('riddle-hint');
@@ -15,12 +16,12 @@
   const $no         = document.getElementById('btn-no');
   const $card       = document.getElementById('card');
   const $resp       = document.getElementById('response');
-  const $respEmoji  = document.getElementById('response-emoji');
   const $respMsg    = document.getElementById('response-msg');
   const $respSub    = document.getElementById('response-sub');
   const $stats      = document.getElementById('stats');
   const $again      = document.getElementById('btn-again');
   const $fire       = document.getElementById('fire-stage');
+  const $pulse      = document.getElementById('pulse');
   const $takeover      = document.getElementById('takeover');
   const $takeoverBlurb = document.getElementById('takeover-blurb');
   const $btnTakeover   = document.getElementById('btn-takeover');
@@ -32,18 +33,31 @@
   let seenQids   = new Set();
   let fireTimers = [];
 
+  // Header pulse indicator — adopts the surface accent to signal state.
+  // states: idle | loading | active | live
+  function setPulse(state, label) {
+    $pulse.dataset.state = state;
+    $pulse.textContent = label;
+  }
+
+  // Remount any [data-msf-shape] canvases inside a region after innerHTML swap.
+  // Particles + the takeover mark auto-mount on DOMContentLoaded; this is for
+  // anything injected dynamically (fire stages).
+  function mountMarks(root) {
+    if (window.MSFGeometry) window.MSFGeometry.auto(root);
+  }
+
   // --- Fire-ritual finale -------------------------------------------------
   //
   // Triggered the moment the user runs out of unseen questions — i.e. the
-  // server returns a qid that's already in `seenQids`. This auto-scales to
-  // the pool size: 3 questions → fire after 3, 50 questions → fire after 50.
-  // No constant to keep in sync with the pool.
+  // server returns a qid that's already in `seenQids`. Auto-scales to pool
+  // size: 3 questions → fire after 3, 50 questions → fire after 50.
   //
-  // The ritual: "one more thing" → choose what to throw to the fire → "it's
-  // burning" → "it's gone, find your friends".
+  // The ritual: "// one more thing" → choose what to throw to the fire →
+  // "it's burning" → "it's gone, find your friends".
   //
-  // What they chose is PRIVATE — never logged, never sent to the Teensy. The
-  // Teensy only ever sees "P:fire_full" regardless of which option was tapped.
+  // What they chose is PRIVATE — never logged, never sent to the Teensy.
+  // The Teensy only ever sees "P:fire_full" regardless of which option was tapped.
   const TRANSITION_MS    = 2000;
   const FIRE_DURATION_MS = 10000;
   const GOODBYE_MS       = 6000;
@@ -65,15 +79,16 @@
   // --- Takeover gate ------------------------------------------------------
   //
   // The app boots into this gate instead of straight into the questions. Tap
-  // "Take over the lights" → 3s countdown (client-side only, lights keep their
-  // current pattern) → POST /api/takeover claims control at the current pattern
-  // (so nothing visibly jumps) → the question flow starts. The operator can
-  // reclaim instantly at any time by moving a physical switch.
+  // "{connect} // take the controls" → 3s countdown (client-side only, lights
+  // keep their current pattern) → POST /api/takeover claims control at the
+  // current pattern (so nothing visibly jumps) → the question flow starts.
+  // The operator can reclaim instantly at any time by moving a physical switch.
   const TAKEOVER_SECONDS = 3;
   let takeoverTimer = null;
 
   function startTakeover() {
     if (takeoverTimer) return;            // already counting down
+    setPulse('loading', 'establishing link');
     $btnTakeover.classList.add('hidden');
     $takeoverBlurb.classList.add('hidden');
     let n = TAKEOVER_SECONDS;
@@ -96,12 +111,14 @@
     // normal question flow. Fire-and-forget — we don't block the UI on it.
     fetch('/api/takeover', { method: 'POST' }).catch(() => {});
     $takeover.classList.add('hidden');
+    setPulse('active', 'live now');
     $card.style.display = '';
     loadNext();
     refreshStats();
   }
 
   function isRiddle(q) { return q && q.type === 'riddle'; }
+  function isChoice(q) { return q && q.type === 'choice'; }
 
   function showQuestion(q) {
     current = q;
@@ -112,30 +129,54 @@
     if (isRiddle(q)) {
       attemptsLeft = q.max_attempts || 3;
       $binary.classList.add('hidden');
+      $choice.classList.add('hidden');
       $riddle.classList.remove('hidden');
       $riddleText.value = '';
       $riddleHint.textContent = '';
       $riddleHint.classList.remove('success');
       // Don't autofocus — opens keyboard immediately, can feel aggressive.
-      // Users tap the input naturally.
+    } else if (isChoice(q)) {
+      $binary.classList.add('hidden');
+      $riddle.classList.add('hidden');
+      renderChoices(q.options || []);
+      $choice.classList.remove('hidden');
     } else {
       $riddle.classList.add('hidden');
+      $choice.classList.add('hidden');
       $binary.classList.remove('hidden');
       // Optional per-question button labels (e.g. "Fold" / "Scrunch").
-      // Fall back to plain Yes / No when not specified.
-      $yes.textContent = (q.yes && q.yes.label) ? q.yes.label : 'Yes';
-      $no.textContent  = (q.no  && q.no.label)  ? q.no.label  : 'No';
+      // CSS lowercases everything visually — content stays as authored.
+      $yes.textContent = (q.yes && q.yes.label) ? q.yes.label : 'yes';
+      $no.textContent  = (q.no  && q.no.label)  ? q.no.label  : 'no';
       $yes.disabled = false;
       $no.disabled  = false;
     }
+  }
+
+  // Build N choice buttons for a type:choice question. Each button posts the
+  // option `id` as the answer; the server matches and dispatches the pattern.
+  function renderChoices(options) {
+    $choice.innerHTML = '';
+    options.forEach((opt) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'choice';
+      btn.dataset.id = opt.id;
+      btn.textContent = '↳ ' + (opt.label || opt.id);
+      btn.addEventListener('click', () => answerChoice(opt.id), { once: false });
+      $choice.appendChild(btn);
+    });
+  }
+
+  function lockChoice() {
+    $choice.querySelectorAll('button').forEach((b) => (b.disabled = true));
   }
 
   function lockBinary() { $yes.disabled = true; $no.disabled = true; }
   function lockRiddle() { $riddleText.disabled = true; }
   function unlockRiddle() { $riddleText.disabled = false; }
 
-  function showResponse({ emoji, msg, sub, celebrate }) {
-    $respEmoji.textContent = emoji || '';
+  function showResponse({ msg, sub, celebrate }) {
     $respMsg.textContent   = msg || '…';
     $respMsg.classList.toggle('celebrate', !!celebrate);
     if (sub) {
@@ -149,7 +190,7 @@
   }
 
   // Advance to the next question. No auto-advance — the user must tap the
-  // "and i go at it again" button on the response screen (Paddy Losty).
+  // "↳ and i go at it again" button on the response screen (Paddy Losty).
   // This gives the user as long as they want to read the reply and look up
   // at the lights.
   //
@@ -186,9 +227,9 @@
   }
 
   function showFireStage(html) {
-    // Force-restart the fadeIn animation by re-inserting the node.
     $fire.classList.remove('hidden');
     $fire.innerHTML = html;
+    mountMarks($fire);            // canvases inside the stage become live wireframes
   }
 
   function hideFireStage() {
@@ -199,24 +240,27 @@
   function startFireSequence() {
     cancelFireTimers();
     hideAllStages();
+    setPulse('loading', 'handover');
     sendCommand('P:dim_ambient');
     showFireTransition();
   }
 
-  // Screen 1 — soft fade, "one more thing.", 2s hold
+  // Screen 1 — soft fade, "// one more thing", 2s hold
   function showFireTransition() {
-    showFireStage('<p class="fire-transition">one more thing.</p>');
+    showFireStage('<p class="fire-transition">// one more thing</p>');
     fireTimers.push(setTimeout(showFireChoice, TRANSITION_MS));
   }
 
   // Screen 2 — choose what to throw to the fire. Six options. No auto-advance.
+  // The singularity ring stands in for the fire — wireframe, amber, glowing.
   function showFireChoice() {
     const optsHtml = FIRE_OPTIONS.map((opt, i) =>
       `<button class="fire-option" type="button" data-i="${i}">${escapeHtml(opt)}</button>`
     ).join('');
     showFireStage(
-      '<p class="fire-emoji" aria-hidden="true">🔥</p>' +
-      '<p class="fire-choice-prompt">choose something<br>to let go<br>and throw to the fire</p>' +
+      '<canvas class="fire-mark" data-msf-shape="singularity" data-color="#FF8A00" data-speed="1.4" aria-hidden="true"></canvas>' +
+      '<p class="fire-choice-prompt">choose something to let go<br>and throw to the fire</p>' +
+      '<p class="fire-prompt-line">↳ private. nothing leaves this phone.</p>' +
       '<div class="fire-options" role="group">' + optsHtml + '</div>'
     );
     // Wire up the buttons. We don't read the data-i — the choice is private,
@@ -233,13 +277,13 @@
     showFireBurning();
   }
 
-  // Screen 3 — burning, 10s, three flickering emojis
+  // Screen 3 — burning, 10s. Singularity rings spin faster, amber glow.
   function showFireBurning() {
     showFireStage(
-      '<p class="fire-trio" aria-hidden="true"><span>🔥</span><span>🔥</span><span>🔥</span></p>' +
+      '<canvas class="fire-mark" data-msf-shape="singularity" data-color="#FF8A00" data-speed="2.4" aria-hidden="true"></canvas>' +
       '<p class="fire-burning-msg">it\'s burning</p>' +
-      '<p class="fire-burning-sub">look up <span aria-hidden="true">↑</span></p>' +
-      '<p class="fire-burning-tail">the lights are taking it</p>'
+      '<p class="fire-burning-sub">look up <span class="arrow" aria-hidden="true">↑</span></p>' +
+      '<p class="fire-burning-tail">// infinity is taking it</p>'
     );
     fireTimers.push(setTimeout(showGoodbye, FIRE_DURATION_MS));
   }
@@ -247,6 +291,7 @@
   // Screen 4 — "it's gone", 6s, then reset
   function showGoodbye() {
     sendCommand('P:idle_ambient');
+    setPulse('idle', 'idle');
     showFireStage(
       '<p class="goodbye-headline">it\'s gone</p>' +
       '<p class="goodbye-body">thanks for playing.<br>find your friends.<br>drink some water.</p>'
@@ -260,7 +305,13 @@
     seenQids.clear();
     inFlight = false;
     current = null;
-    loadNext();
+    // Back to the takeover gate so the next visitor starts fresh.
+    $takeover.classList.remove('hidden');
+    $btnTakeover.classList.remove('hidden');
+    $takeoverBlurb.classList.remove('hidden');
+    $takeoverCount.classList.add('hidden');
+    $card.style.display = 'none';
+    setPulse('idle', 'idle');
     refreshStats();
   }
 
@@ -290,7 +341,7 @@
       }
       showQuestion(q);
     } catch (err) {
-      $q.textContent = 'No questions available — check the controller.';
+      $q.textContent = '// no questions — check the controller';
       lockBinary();
     }
   }
@@ -308,9 +359,26 @@
       });
       showResponse({ msg: resp.msg });
     } catch (err) {
-      showResponse({ msg: 'one sec…' });
+      showResponse({ msg: '// one sec' });
     }
-    // Response stays until the user taps "and i go at it again".
+    // Response stays until the user taps "↳ and i go at it again".
+  }
+
+  // ----- Choice answer (type:choice) -----
+  async function answerChoice(optionId) {
+    if (inFlight || !current) return;
+    inFlight = true;
+    lockChoice();
+    try {
+      const resp = await fetchJSON('/api/answer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ qid: current.id, answer: optionId }),
+      });
+      showResponse({ msg: resp.msg });
+    } catch (err) {
+      showResponse({ msg: '// one sec' });
+    }
   }
 
   // ----- Riddle answer -----
@@ -329,9 +397,9 @@
       });
 
       if (resp.ok) {
-        // Correct! Magic moment. Response stays until the user taps again.
+        // Correct. Lime = live / urgent — the beat is on.
+        setPulse('live', 'beat is on');
         showResponse({
-          emoji: '🎤',
           msg: resp.msg || "you've activated the beat",
           sub: 'the lights now hear what you hear',
           celebrate: true,
@@ -342,12 +410,11 @@
         if (attemptsLeft <= 0) {
           // Out of attempts — reveal and wait for them to tap onward.
           showResponse({
-            emoji: '🎤',
             msg: current.reveal_msg || 'the answer was the mic',
           });
         } else {
           $riddleHint.textContent =
-            (resp.msg || 'not quite…') +
+            (resp.msg || 'not quite') +
             '  ·  ' + attemptsLeft + ' attempt' + (attemptsLeft === 1 ? '' : 's') + ' left';
           $riddleText.value = '';
           unlockRiddle();
@@ -356,7 +423,7 @@
         }
       }
     } catch (err) {
-      $riddleHint.textContent = 'one sec…';
+      $riddleHint.textContent = '// one sec';
       unlockRiddle();
       inFlight = false;
     }
@@ -366,13 +433,14 @@
     try {
       const s = await fetchJSON('/api/stats');
       const total = (s.yes || 0) + (s.no || 0);
-      const beat  = s.beatActivated ? ' · beat is on 🎤' : '';
+      const beat  = s.beatActivated ? ' · <span class="beat">beat is on</span>' : '';
       if (total > 0) {
         const yesPct = Math.round((s.yes / total) * 100);
-        $stats.textContent =
-          yesPct + '% have said yes tonight · ' + total + ' answers' + beat;
+        $stats.innerHTML =
+          '<span class="pct">' + yesPct + '%</span> have said yes tonight · ' +
+          total + ' answers' + beat;
       } else {
-        $stats.textContent = 'be the first to answer' + beat;
+        $stats.innerHTML = 'be the first to answer' + beat;
       }
     } catch (_) {
       $stats.textContent = '';
@@ -389,9 +457,10 @@
   });
 
   // Boot — gate the experience behind the takeover countdown. The question
-  // flow does not start until the user taps through and the 5s countdown ends.
+  // flow does not start until the user taps through and the 3s countdown ends.
   $card.style.display = 'none';
   $takeover.classList.remove('hidden');
+  setPulse('idle', 'idle');
   refreshStats();
   setInterval(refreshStats, 10000);
 })();

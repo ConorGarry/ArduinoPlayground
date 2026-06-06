@@ -28,6 +28,19 @@ constexpr int FOLD     = 14;
 // detailed read-off instructions.
 constexpr int CALIBRATE = 15;
 
+// Painter question — "I'll paint you a picture in the style of…"
+// Each pattern is a visual interpretation of the painter's mode, not just a
+// palette grab. See CLAUDE/meta-sonic-flux-design.md and the function bodies.
+constexpr int PAINT_MONET    = 16;
+constexpr int PAINT_PICASSO  = 17;
+constexpr int PAINT_DALI     = 18;
+constexpr int PAINT_DA_VINCI = 19;
+
+// "Could you keep it down there please?" → "What? Turn it up you say?"
+// Full-structure strobe with per-strip random hues — sensory payoff for the
+// joke. Index 20.
+constexpr int TURN_IT_UP     = 20;
+
 }  // namespace app_patterns
 
 void dimAmbient();
@@ -40,5 +53,13 @@ void scrunch();
 void fold();
 
 void calibrate();
+
+void paintMonet();
+void paintPicasso();
+void paintDali();
+void paintDaliCascade();   // alt: descending-front variant of paintDali (test-only)
+void paintDaVinci();
+
+void turnItUp();
 
 #endif

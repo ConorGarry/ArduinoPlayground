@@ -130,6 +130,44 @@ inline void answerBinary(JsonObject q, const char* answer) {
   server.send(200, "application/json", out);
 }
 
+// ---------- /api/answer (choice branch) ----------
+// type:choice questions carry an options[] array of { id, label, msg, pattern }.
+// The client posts `answer:"<id>"`; we look it up case-insensitively against
+// the option ids declared in questions.json, and dispatch its pattern.
+inline void answerChoice(JsonObject q, const String& choiceId) {
+  JsonArray opts = q["options"].as<JsonArray>();
+  if (opts.isNull() || opts.size() == 0) {
+    server.send(500, "application/json", "{\"error\":\"no options\"}");
+    return;
+  }
+
+  String wanted = choiceId;
+  wanted.toLowerCase();
+  wanted.trim();
+
+  for (JsonObject opt : opts) {
+    String oid = opt["id"] | "";
+    oid.toLowerCase();
+    oid.trim();
+    if (oid != wanted) continue;
+
+    int pattern = opt["pattern"] | -1;
+    const char* msg = opt["msg"] | "";
+    if (pattern >= 0) bridge::sendPattern(pattern);
+
+    JsonDocument resp;
+    resp["ok"]      = true;
+    resp["msg"]     = msg;
+    resp["pattern"] = pattern;
+    String out;
+    serializeJson(resp, out);
+    server.send(200, "application/json", out);
+    return;
+  }
+
+  server.send(400, "application/json", "{\"error\":\"unknown choice\"}");
+}
+
 // ---------- /api/answer (riddle branch) ----------
 inline void answerRiddle(JsonObject q, String userAns) {
   userAns.toLowerCase();
@@ -210,6 +248,10 @@ inline void handleApiAnswer() {
 
   if (questions::isRiddle(q)) {
     answerRiddle(q, answer);
+    return;
+  }
+  if (questions::isChoice(q)) {
+    answerChoice(q, answer);
     return;
   }
   if (!(answer == "yes" || answer == "no")) {

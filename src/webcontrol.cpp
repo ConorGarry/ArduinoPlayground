@@ -19,10 +19,10 @@ static const unsigned long STATUS_BROADCAST_MS  = 500;
 // override path so it can't hijack the operator switches.
 static const unsigned long LINK_ALIVE_MS = 12000;  // ~2 missed 5 s pings
 
-// Highest valid pattern index (app_patterns::CALIBRATE — the wiring-direction
-// bench tool). Commands outside 0..MAX are rejected rather than blindly
-// dispatched.
-static const int MAX_PATTERN_INDEX = app_patterns::CALIBRATE;
+// Highest valid pattern index (currently TURN_IT_UP, the strobe reaction).
+// Commands outside 0..MAX are rejected rather than blindly dispatched. When
+// adding a new app pattern with a higher index, bump this to match.
+static const int MAX_PATTERN_INDEX = app_patterns::TURN_IT_UP;
 
 // Mapping of Q:yes / Q:no when the ESP32 doesn't send an explicit P:<n>.
 static const int Q_YES_PATTERN_FALLBACK = 0;  // rainbowChase

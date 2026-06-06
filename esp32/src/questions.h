@@ -44,6 +44,10 @@ inline bool isRiddle(JsonObject q) {
   return strcmp(q["type"] | "binary", "riddle") == 0;
 }
 
+inline bool isChoice(JsonObject q) {
+  return strcmp(q["type"] | "binary", "choice") == 0;
+}
+
 // Recently-served ring — prevents back-to-back repeats.
 inline int recent[8] = { -1, -1, -1, -1, -1, -1, -1, -1 };
 inline int recentIdx = 0;
