@@ -14,5 +14,14 @@ static const long  BRIDGE_BAUD    = 115200;
 // Spec suggests 5 s; 2 s is friendlier on the bench.
 static const unsigned long PER_IP_COOLDOWN_MS = 2000;
 
-// Turn OFF for festival — ~6 noisy lines/sec at the 500 ms broadcast cadence.
-#define DEBUG_BRIDGE 1
+// One-at-a-time controller: the active phone's slot frees if no activity or
+// heartbeat arrives for this long (covers walk-aways / locked phones). The
+// active client heartbeats every ~8 s, so this tolerates several missed beats.
+static const unsigned long SESSION_IDLE_MS = 45000;
+
+// Both default OFF for the festival — every enabled line is a blocking
+// Serial.print on the USB CDC that can stall the request path under load.
+// DEBUG_BRIDGE: ~6 lines/sec of bridge traffic. DEBUG_HTTP: per-request +
+// captive-probe logging (storms hard when every phone's OS probes).
+#define DEBUG_BRIDGE 0
+#define DEBUG_HTTP   0

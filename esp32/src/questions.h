@@ -77,7 +77,7 @@ inline JsonObject pickRandom(bool beatActivated, const std::set<int>* exclude = 
     for (JsonObject q : arr) {
       if (isRiddle(q)) {
         int id = q["id"] | -1;
-        if (isExcluded(id)) break;
+        if (isExcluded(id)) continue;   // scan for the next unseen riddle, don't abandon preference
         markServed(id);
         return q;
       }

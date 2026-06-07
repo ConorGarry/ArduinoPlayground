@@ -17,6 +17,7 @@ which already has `pyserial` and `esptool` installed.
 | `check_bridge.py` | 15s passive sniff: counts MODE / PATTERN / PING frames and flags corruption. No phone tap needed. Use as a pre-flight before powering LEDs |
 | `dev_server.py` | Local browser mock of every `/api/*` endpoint. Demo the question flow, takeover and fire-ritual finale on a Mac without flashing hardware |
 | `flash_both.sh` | One command, both boards flashed (Teensy → ESP32 LittleFS → ESP32 firmware) |
+| `gen_patterns.py` | Generates `esp32/data/patterns.json` from the Teensy's `app_patterns.h` and fails if any pattern ID / `P:` command name has drifted out of sync across the two firmwares. Runs automatically as an ESP32 pre-build hook; run by hand with `python3 tools/gen_patterns.py` |
 
 ## Common usage
 

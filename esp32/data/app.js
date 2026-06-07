@@ -26,6 +26,7 @@
   const $takeoverBlurb = document.getElementById('takeover-blurb');
   const $btnTakeover   = document.getElementById('btn-takeover');
   const $takeoverCount = document.getElementById('takeover-count');
+  const $holding       = document.getElementById('holding');
 
   let current = null;
   let inFlight = false;
@@ -72,7 +73,11 @@
 
   async function fetchJSON(url, opts) {
     const r = await fetch(url, opts);
-    if (!r.ok) throw new Error('HTTP ' + r.status);
+    if (!r.ok) {
+      const e = new Error('HTTP ' + r.status);
+      e.status = r.status;          // 409 = our controller slot was lost
+      throw e;
+    }
     return r.json();
   }
 
@@ -84,7 +89,11 @@
   // current pattern (so nothing visibly jumps) → the question flow starts.
   // The operator can reclaim instantly at any time by moving a physical switch.
   const TAKEOVER_SECONDS = 3;
+  const HOLDING_POLL_MS  = 3000;   // re-try acquiring the slot while waiting
+  const HEARTBEAT_MS     = 8000;   // keep our slot alive while active
   let takeoverTimer = null;
+  let holdingTimer  = null;
+  let heartbeatTimer = null;
 
   function startTakeover() {
     if (takeoverTimer) return;            // already counting down
@@ -106,15 +115,87 @@
     }, 1000);
   }
 
-  function finishTakeover() {
-    // Claim control at whatever pattern is currently showing, then begin the
-    // normal question flow. Fire-and-forget — we don't block the UI on it.
-    fetch('/api/takeover', { method: 'POST' }).catch(() => {});
+  async function finishTakeover() {
+    // Try to claim the single controller slot. If someone else holds it, drop
+    // into the holding screen and keep retrying; otherwise enter the flow.
+    try {
+      const r = await fetchJSON('/api/takeover', { method: 'POST' });
+      if (r && r.busy) { showHolding(); return; }
+    } catch (_) {
+      showHolding();   // network blip — wait it out on the holding screen
+      return;
+    }
+    enterExperience();
+  }
+
+  // We hold the slot — start the question flow and begin heartbeating so the
+  // server knows we're still here (even while reading a long riddle).
+  function enterExperience() {
+    hideHolding();
     $takeover.classList.add('hidden');
     setPulse('active', 'live now');
     $card.style.display = '';
+    startHeartbeat();
     loadNext();
     refreshStats();
+  }
+
+  // --- Holding screen (someone else is at the controls) -------------------
+  function showHolding() {
+    $takeover.classList.add('hidden');
+    hideAllStages();
+    hideFireStage();
+    stopHeartbeat();
+    $holding.classList.remove('hidden');
+    $holding.innerHTML =
+      '<canvas class="mark anim-breath" data-msf-shape="singularity" ' +
+        'data-color="#FF8A00" data-speed="0.6" aria-hidden="true"></canvas>' +
+      '<div>' +
+        '<p class="display title">hold tight</p>' +
+        '<p class="takeover-blurb">someone is inside infinity right now.<br>' +
+        'you\'ll enter the moment it\'s free.</p>' +
+      '</div>' +
+      '<p class="takeover-count">// waiting for the controls</p>';
+    mountMarks($holding);
+    setPulse('loading', 'in queue');
+    if (!holdingTimer) holdingTimer = setInterval(tryAcquire, HOLDING_POLL_MS);
+  }
+
+  function hideHolding() {
+    if (holdingTimer) { clearInterval(holdingTimer); holdingTimer = null; }
+    $holding.classList.add('hidden');
+    $holding.innerHTML = '';
+  }
+
+  async function tryAcquire() {
+    try {
+      const r = await fetchJSON('/api/takeover', { method: 'POST' });
+      if (r && r.ok) enterExperience();   // hideHolding() runs inside
+    } catch (_) { /* keep waiting */ }
+  }
+
+  // Bounce back to the holding screen if we lose the slot mid-session (idle
+  // timeout fired, or the operator reclaimed). Heartbeat / 409s call this.
+  function bounceToHolding() {
+    cancelFireTimers();
+    current = null;
+    inFlight = false;
+    seenQids.clear();
+    showHolding();
+  }
+
+  function startHeartbeat() {
+    stopHeartbeat();
+    heartbeatTimer = setInterval(async () => {
+      try {
+        const r = await fetchJSON('/api/heartbeat');
+        if (r && r.mine === false) bounceToHolding();
+      } catch (_) { /* transient — next beat retries */ }
+    }, HEARTBEAT_MS);
+  }
+
+  function stopHeartbeat() {
+    if (heartbeatTimer) { clearInterval(heartbeatTimer); heartbeatTimer = null; }
   }
 
   function isRiddle(q) { return q && q.type === 'riddle'; }
@@ -302,6 +383,10 @@
   function resetSession() {
     cancelFireTimers();
     hideFireStage();
+    stopHeartbeat();
+    // Hand the controller slot back so the next person isn't waiting out the
+    // idle timeout. Fire-and-forget.
+    fetch('/api/release', { method: 'POST' }).catch(() => {});
     seenQids.clear();
     inFlight = false;
     current = null;
@@ -341,7 +426,8 @@
       }
       showQuestion(q);
     } catch (err) {
-      $q.textContent = '// no questions — check the controller';
+      if (err.status === 409) { bounceToHolding(); return; }   // lost our slot
+      $q.textContent = '// no questions, check the controller';
       lockBinary();
     }
   }
@@ -359,6 +445,7 @@
       });
       showResponse({ msg: resp.msg });
     } catch (err) {
+      if (err.status === 409) { bounceToHolding(); return; }
       showResponse({ msg: '// one sec' });
     }
     // Response stays until the user taps "↳ and i go at it again".
@@ -377,6 +464,7 @@
       });
       showResponse({ msg: resp.msg });
     } catch (err) {
+      if (err.status === 409) { bounceToHolding(); return; }
       showResponse({ msg: '// one sec' });
     }
   }
@@ -423,6 +511,7 @@
         }
       }
     } catch (err) {
+      if (err.status === 409) { bounceToHolding(); return; }
       $riddleHint.textContent = '// one sec';
       unlockRiddle();
       inFlight = false;
@@ -451,6 +540,12 @@
   $no .addEventListener('click', () => answerBinary('no'));
   $again.addEventListener('click', () => advance());
   $btnTakeover.addEventListener('click', () => startTakeover());
+
+  // Free the controller slot promptly when the active phone leaves (tab close,
+  // Wi-Fi drop). No-op server-side if we weren't the active controller.
+  window.addEventListener('pagehide', () => {
+    if (navigator.sendBeacon) navigator.sendBeacon('/api/release');
+  });
   $riddle.addEventListener('submit', (e) => {
     e.preventDefault();
     answerRiddle($riddleText.value);

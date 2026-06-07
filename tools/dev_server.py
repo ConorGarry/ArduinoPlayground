@@ -10,6 +10,19 @@ Mac without flashing hardware.
 State is in-memory and resets when the process exits. Hit GET /__reset to
 clear state without restarting (handy mid-demo).
 
+One-at-a-time controller: mirrors the firmware's single-active-controller lock
+(/api/takeover busy semantics, /api/heartbeat, /api/release, 409-gated
+question/answer/command). The firmware keys the lock on client IP; two browser
+windows on one laptop share 127.0.0.1, so to rehearse the QUEUE / holding screen
+this mock identifies a "phone" by a per-browser-profile cookie instead:
+
+    • a normal window           = phone A (takes the controls)
+    • an incognito / 2nd profile = phone B (sees the holding screen, auto-enters
+                                            when A finishes or walks away)
+
+Tabs within the SAME browser profile share the cookie → they act as one phone,
+which matches the real mental model.
+
 Usage:
     python3 tools/dev_server.py              # http://localhost:8080
     python3 tools/dev_server.py --port 3000
@@ -22,6 +35,7 @@ import random
 import sys
 import threading
 import time
+import uuid
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -43,6 +57,9 @@ CONTENT_TYPES = {
 RIDDLE_PREFER_PCT = 70
 # Mirrors config.h::PER_IP_COOLDOWN_MS
 PER_IP_COOLDOWN_MS = 2000
+# Mirrors config.h::SESSION_IDLE_MS — controller slot frees after this much
+# inactivity / no heartbeat.
+SESSION_IDLE_MS = 45000
 
 
 class State:
@@ -57,8 +74,11 @@ class State:
         self.beat_activated = False
         self.beat_activations = 0
         self.recent_ids: list[int] = []  # ring of last 8 served qids
-        self.last_ip = ""
-        self.last_answer_ms = 0
+        # Per-client (cookie) answer cooldown — mirrors the firmware's per-IP table.
+        self.cooldowns: dict[str, int] = {}
+        # Single active controller (cookie id; "" = free) + last-seen timestamp.
+        self.active_client = ""
+        self.active_last_seen_ms = 0
         # /api/state mock fields — match firmware shape
         self.last_teensy_mode = "idle"
         self.last_teensy_pattern = -1
@@ -81,13 +101,29 @@ class State:
             self.beat_activated = False
             self.beat_activations = 0
             self.recent_ids = []
-            self.last_ip = ""
-            self.last_answer_ms = 0
+            self.cooldowns = {}
+            self.active_client = ""
+            self.active_last_seen_ms = 0
             self.last_teensy_pattern = -1
             self.last_teensy_beat = False
             self.bridge_log.clear()
             self.reload_questions()
         log("[state] reset")
+
+    # ---- single active controller (mirrors web_routes.h) ----
+    # Callers must hold self.lock.
+    def session_occupied(self, now: int) -> bool:
+        return bool(self.active_client) and (now - self.active_last_seen_ms) <= SESSION_IDLE_MS
+
+    def is_active(self, cid: str, now: int) -> bool:
+        return cid == self.active_client and (now - self.active_last_seen_ms) <= SESSION_IDLE_MS
+
+    def rate_limited(self, cid: str, now: int) -> bool:
+        last = self.cooldowns.get(cid, 0)
+        if now - last < PER_IP_COOLDOWN_MS:
+            return True
+        self.cooldowns[cid] = now
+        return False
 
     def mark_served(self, qid: int):
         self.recent_ids.append(qid)
@@ -179,20 +215,58 @@ def parse_seen(raw: str) -> set[int]:
 
 def make_handler(state: State):
 
-    FIRE_RITUAL_COMMANDS = {"P:dim_ambient", "P:fire_full", "P:idle_ambient"}
+    # Matches web_routes.h FIRE_RITUAL_COMMANDS (calibrate is bench-only).
+    FIRE_RITUAL_COMMANDS = {"P:dim_ambient", "P:fire_full", "P:idle_ambient", "P:calibrate"}
 
     class Handler(BaseHTTPRequestHandler):
         # Quieter default request logging — we do our own.
         def log_message(self, fmt, *args):
             log(f"[http] {self.address_string()} {fmt % args}")
 
+        # ---- client identity (dev-only) ----
+        # The firmware keys the controller lock on IP; here we use a per-browser
+        # cookie so two windows on one laptop can play two different "phones".
+        def client_id(self) -> str:
+            cached = getattr(self, "_cid", None)
+            if cached:
+                return cached
+            cid = None
+            for part in self.headers.get("Cookie", "").split(";"):
+                k, _, v = part.strip().partition("=")
+                if k == "msfdev" and v:
+                    cid = v
+                    break
+            if not cid:
+                cid = uuid.uuid4().hex[:8]
+                self._set_cookie = cid   # send_* will emit Set-Cookie
+            self._cid = cid
+            return cid
+
+        # Gate the experience endpoints on the active controller (→ 409 busy).
+        def require_active_controller(self) -> bool:
+            cid = self.client_id()
+            now = int(time.time() * 1000)
+            with state.lock:
+                if state.is_active(cid, now):
+                    state.active_last_seen_ms = now
+                    return True
+            self.send_json(409, {"error": "busy", "busy": True})
+            return False
+
         # ---- helpers ----
+        def _maybe_set_cookie(self):
+            nc = getattr(self, "_set_cookie", None)
+            if nc:
+                self.send_header("Set-Cookie", f"msfdev={nc}; Path=/; SameSite=Lax")
+                self._set_cookie = None
+
         def send_json(self, status: int, payload: dict | list):
             body = json.dumps(payload).encode("utf-8")
             self.send_response(status)
             self.send_header("Content-Type", "application/json")
             self.send_header("Content-Length", str(len(body)))
             self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+            self._maybe_set_cookie()
             self.end_headers()
             self.wfile.write(body)
 
@@ -206,6 +280,7 @@ def make_handler(state: State):
             self.send_header("Content-Type", ctype)
             self.send_header("Content-Length", str(len(data)))
             self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+            self._maybe_set_cookie()
             self.end_headers()
             self.wfile.write(data)
             return True
@@ -225,13 +300,28 @@ def make_handler(state: State):
             url = urlparse(self.path)
             path = url.path
             query = parse_qs(url.query)
+            self.client_id()   # establish/refresh cookie identity early
 
             if path in ("/", "/index.html"):
                 if not self.send_static(DATA_DIR / "index.html"):
                     self.send_error(500, "index.html missing")
                 return
 
+            if path == "/api/heartbeat":
+                cid = self.client_id()
+                now = int(time.time() * 1000)
+                with state.lock:
+                    if state.is_active(cid, now):
+                        state.active_last_seen_ms = now
+                        self.send_json(200, {"mine": True})
+                        return
+                    occupied = state.session_occupied(now)
+                self.send_json(200, {"mine": False, "occupied": occupied})
+                return
+
             if path == "/api/question":
+                if not self.require_active_controller():
+                    return
                 seen = parse_seen(query.get("seen", [""])[0])
                 with state.lock:
                     q = state.pick_random(seen)
@@ -269,6 +359,8 @@ def make_handler(state: State):
                 return
 
             if path == "/command":
+                if not self.require_active_controller():
+                    return
                 cmd = query.get("cmd", [""])[0]
                 if not cmd:
                     self.send_json(400, {"error": "need cmd"})
@@ -304,15 +396,26 @@ def make_handler(state: State):
         def do_POST(self):
             url = urlparse(self.path)
             path = url.path
+            self.client_id()   # establish/refresh cookie identity early
 
+            if path == "/api/takeover":
+                self._takeover()
+                return
+            if path == "/api/release":
+                self._release()
+                return
             if path != "/api/answer":
                 self.send_error(404, "not found")
                 return
 
-            ip = self.client_address[0]
+            # --- /api/answer ---
+            if not self.require_active_controller():
+                return
+
+            cid = self.client_id()
             now = int(time.time() * 1000)
             with state.lock:
-                if ip == state.last_ip and (now - state.last_answer_ms) < PER_IP_COOLDOWN_MS:
+                if state.rate_limited(cid, now):
                     self.send_json(429, {"error": "slow down"})
                     return
 
@@ -333,9 +436,6 @@ def make_handler(state: State):
                     self.send_json(404, {"error": "unknown qid"})
                     return
 
-                state.last_ip = ip
-                state.last_answer_ms = now
-
                 if q.get("type") == "riddle":
                     self._answer_riddle(q, answer)
                     return
@@ -349,6 +449,30 @@ def make_handler(state: State):
                     return
 
                 self._answer_binary(q, answer)
+
+        # ---- single active controller ----
+        def _takeover(self):
+            cid = self.client_id()
+            now = int(time.time() * 1000)
+            with state.lock:
+                if state.session_occupied(now) and not state.is_active(cid, now):
+                    self.send_json(200, {"ok": False, "busy": True})
+                    return
+                fresh = not state.is_active(cid, now)
+                state.active_client = cid
+                state.active_last_seen_ms = now
+                pattern = state.last_teensy_pattern
+                if fresh and pattern >= 0:
+                    state.send_bridge_line(f"P:{pattern}")
+            self.send_json(200, {"ok": True, "pattern": pattern})
+
+        def _release(self):
+            cid = self.client_id()
+            now = int(time.time() * 1000)
+            with state.lock:
+                if state.is_active(cid, now):
+                    state.active_client = ""
+            self.send_json(200, {"ok": True})
 
         def _answer_binary(self, q: dict, answer: str):
             branch = q.get(answer, {}) or {}
@@ -429,8 +553,11 @@ def main():
         f"  → {url}\n"
         f"  data:   {DATA_DIR}\n"
         f"  questions: {len(state.questions)} loaded\n"
+        "  rehearse the queue / holding screen:\n"
+        "    open a normal window (phone A, takes control) AND an incognito\n"
+        "    window (phone B, gets the holding screen, auto-enters when A is done)\n"
         "  conveniences:\n"
-        f"    GET {url}__reset    — clear state + reload questions.json\n"
+        f"    GET {url}__reset    — clear state (incl. controller slot) + reload questions\n"
         f"    GET {url}__bridge   — tail of mocked Teensy serial traffic\n"
         "  Ctrl-C to stop.\n"
         "─────────────────────────────────────────────────────\n"

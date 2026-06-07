@@ -56,7 +56,10 @@ inline void setupCaptivePortalDhcpOption() {
 inline void begin() {
   WiFi.mode(WIFI_AP);
   WiFi.softAPConfig(apIp(), apIp(), IPAddress(255, 255, 255, 0));
-  WiFi.softAP(AP_SSID);
+  // max_connection defaults to 4 — the 5th phone can't even associate. Raise to
+  // 8 (hw max is 10) so one phone drives while up to seven wait on the holding
+  // screen. args: ssid, password, channel, hidden, max_connection.
+  WiFi.softAP(AP_SSID, nullptr, 1, 0, 8);
 
   // Must be after softAP() so the netif exists.
   setupCaptivePortalDhcpOption();

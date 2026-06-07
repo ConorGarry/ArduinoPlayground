@@ -1,6 +1,10 @@
 #include <FastLED.h>
 #include "app_patterns.h"
 #include "../led.h"
+#include "strip_calibration.h"
+
+using strip_calibration::STRIP_WIRED_FROM_TOP;
+using strip_calibration::STRIP_BAND;
 
 static const CRGB WARM_WHITE = CRGB(255, 180, 100);
 
@@ -36,38 +40,8 @@ void fireFull() {
   static const unsigned long CLIMB_MS  = 5000;  // base -> fully ablaze
   static const uint8_t       NUM_BANDS = 5;     // bottom..top
 
-  // 1-based strip number -> height-band rank (0 = base ... 4 = top). The 6
-  // non-vertical strips (3, 8, 11, 16, 19, 22) have no documented band; they
-  // default to middle (2) so the whole shape ends up ablaze. Index [0] is
-  // unused (strips are 1-based).
-  static const uint8_t stripBand[NUM_STRIPS + 1] = {
-    /* [0] unused */ 0,
-    /*  1.. 6 */ 0, 1, 2, 1, 0, 0,
-    /*  7..12 */ 1, 2, 1, 2, 2, 2,
-    /* 13..18 */ 3, 3, 2, 2, 2, 1,
-    /* 19..24 */ 2, 1, 2, 2, 2, 3,
-    /* 25..30 */ 3, 4, 4, 4, 3, 3,
-  };
-
-  // 1-based per-strip data-flow direction.
-  //   true  = data input is at the TOP of the physical run; the climb fills
-  //           from high LED-index toward LED 0 (visually: bottom → top).
-  //   false = data input is at the BASE of the run; the climb fills from
-  //           LED 0 toward LED 71 (visually: bottom → top).
-  //
-  // Default for all 30 strips: true (inferred from the bench test of the
-  // previous "all false except strip 1" default). Flip individual entries to
-  // false here for any specific strip that climbs downward after testing.
-  // SPENCER - fix these 
-  static const bool stripWiredFromTop[NUM_STRIPS + 1] = {
-    /* [0] unused */ false,
-    /*  1 */ false, /*  2 */ false,  /*  3 */ true,  /*  4 */ true,  /*  5 */ true,
-    /*  6 */ false, /*  7 */ true,  /*  8 */ true,  /*  9 */ true,  /* 10 */ true,
-    /* 11 */ true,  /* 12 */ true,  /* 13 */ true,  /* 14 */ true,  /* 15 */ true,
-    /* 16 */ true,  /* 17 */ true,  /* 18 */ true,  /* 19 */ true,  /* 20 */ true,
-    /* 21 */ true,  /* 22 */ true,  /* 23 */ true,  /* 24 */ true,  /* 25 */ true,
-    /* 26 */ false,  /* 27 */ true,  /* 28 */ true,  /* 29 */ true,  /* 30 */ true,
-  };
+  // Strip wiring calibration (STRIP_BAND / STRIP_WIRED_FROM_TOP) lives in
+  // strip_calibration.h — shared with paintDali()/paintDaliCascade().
 
   unsigned long now = millis();
   static unsigned long fireStartMs = 0;
@@ -87,13 +61,13 @@ void fireFull() {
   z += 35;  // animate the flame flicker
 
   for (int s = 1; s <= NUM_STRIPS; s++) {
-    float fill = front - (float) stripBand[s];
+    float fill = front - (float) STRIP_BAND[s];
     if (fill < 0.0f) fill = 0.0f;
     if (fill > 1.0f) fill = 1.0f;
     int litCount = (int) (fill * NUM_LEDS_PER_STRIP);
 
     CRGB* strip = allStrips[s - 1];
-    bool fromTop = stripWiredFromTop[s];
+    bool fromTop = STRIP_WIRED_FROM_TOP[s];
     for (int i = 0; i < NUM_LEDS_PER_STRIP; i++) {
       // heightFromBase: 0 at the physical base of the strip, NUM_LEDS_PER_STRIP-1
       // at the top. Lit if the climb front has reached that height.
@@ -171,8 +145,8 @@ void fold() {
 //
 // For each strip, note the position of the RED end on the physical structure
 // and report back:
-//   - RED at the BOTTOM  → stripWiredFromTop[s] should be FALSE
-//   - RED at the TOP     → stripWiredFromTop[s] should be TRUE
+//   - RED at the BOTTOM  → STRIP_WIRED_FROM_TOP[s] should be FALSE  (strip_calibration.h)
+//   - RED at the TOP     → STRIP_WIRED_FROM_TOP[s] should be TRUE   (strip_calibration.h)
 // (Horizontal strips at the very top/bottom edges of the dodecahedron don't
 // have a meaningful "up"; just note where red lands and we'll pick whichever.)
 //
@@ -342,19 +316,9 @@ void paintPicasso() {
 //   CHSV (full sat + val)    — vivid neon colour, no muddy in-between hues
 //   random8 / random16       — drip choice, spawn cadence
 void paintDali() {
-  // Per-strip data-flow direction. Mirrored from fireFull()'s calibrated
-  // table — keep them in sync if Spencer flips any strip there. true = data
-  // input at the physical TOP of the run, so "fall from top" means
-  // increasing LED index → 0; false = the opposite.
-  static const bool stripWiredFromTop[NUM_STRIPS + 1] = {
-    /* [0] unused */ false,
-    /*  1 */ false, /*  2 */ false, /*  3 */ true,  /*  4 */ true,  /*  5 */ true,
-    /*  6 */ false, /*  7 */ true,  /*  8 */ true,  /*  9 */ true,  /* 10 */ true,
-    /* 11 */ true,  /* 12 */ true,  /* 13 */ true,  /* 14 */ true,  /* 15 */ true,
-    /* 16 */ true,  /* 17 */ true,  /* 18 */ true,  /* 19 */ true,  /* 20 */ true,
-    /* 21 */ true,  /* 22 */ true,  /* 23 */ true,  /* 24 */ true,  /* 25 */ true,
-    /* 26 */ false, /* 27 */ true,  /* 28 */ true,  /* 29 */ true,  /* 30 */ true,
-  };
+  // Per-strip data-flow direction: STRIP_WIRED_FROM_TOP in strip_calibration.h
+  // (shared with fireFull). true = data input at the physical TOP of the run,
+  // so "fall from top" means increasing LED index → 0; false = the opposite.
 
   // Vivid neon hue pool. Hand-picked so every drip lands on a punchy
   // fluorescent colour — no in-between muddy yellow-greens or murky browns
@@ -432,7 +396,7 @@ void paintDali() {
     }
 
     CRGB*   strip   = allStrips[dStrip[d]];
-    bool    fromTop = stripWiredFromTop[dStrip[d] + 1];
+    bool    fromTop = STRIP_WIRED_FROM_TOP[dStrip[d] + 1];
     uint8_t hue     = dHue[d];
     uint8_t tail    = dTailLen[d];
 
@@ -463,30 +427,12 @@ void paintDali() {
 // reaches the bottom (after CASCADE_MS), it's visually identical to
 // paintDali() — the difference lives in the opening cascade.
 void paintDaliCascade() {
-  // --- shared with paintDali() ------------------------------------------
-  static const bool stripWiredFromTop[NUM_STRIPS + 1] = {
-    /* [0] unused */ false,
-    /*  1 */ false, /*  2 */ false, /*  3 */ true,  /*  4 */ true,  /*  5 */ true,
-    /*  6 */ false, /*  7 */ true,  /*  8 */ true,  /*  9 */ true,  /* 10 */ true,
-    /* 11 */ true,  /* 12 */ true,  /* 13 */ true,  /* 14 */ true,  /* 15 */ true,
-    /* 16 */ true,  /* 17 */ true,  /* 18 */ true,  /* 19 */ true,  /* 20 */ true,
-    /* 21 */ true,  /* 22 */ true,  /* 23 */ true,  /* 24 */ true,  /* 25 */ true,
-    /* 26 */ false, /* 27 */ true,  /* 28 */ true,  /* 29 */ true,  /* 30 */ true,
-  };
+  // --- shared with paintDali() / fireFull() -----------------------------
+  // Wiring direction (STRIP_WIRED_FROM_TOP) and height bands (STRIP_BAND) both
+  // live in strip_calibration.h.
   static const uint8_t NEON_HUES[] = { 0, 24, 64, 96, 144, 160, 192, 208, 224 };
   static const uint8_t NUM_HUES = sizeof(NEON_HUES) / sizeof(NEON_HUES[0]);
 
-  // --- band model mirrored from fireFull() ------------------------------
-  // 0 = bottom band, 4 = top band. The 6 non-vertical strips inherit the
-  // same middle (2) default fireFull() uses.
-  static const uint8_t stripBand[NUM_STRIPS + 1] = {
-    /* [0] unused */ 0,
-    /*  1.. 6 */ 0, 1, 2, 1, 0, 0,
-    /*  7..12 */ 1, 2, 1, 2, 2, 2,
-    /* 13..18 */ 3, 3, 2, 2, 2, 1,
-    /* 19..24 */ 2, 1, 2, 2, 2, 3,
-    /* 25..30 */ 3, 4, 4, 4, 3, 3,
-  };
   static const unsigned long CASCADE_MS = 4000;  // top -> bottom front travel
   static const uint8_t NUM_BANDS = 5;
 
@@ -534,7 +480,7 @@ void paintDaliCascade() {
       // only the top few bands are live, so most random picks miss.
       for (uint8_t attempt = 0; attempt < 6; attempt++) {
         uint8_t candidate = random8(NUM_STRIPS);
-        uint8_t band = stripBand[candidate + 1];   // table is 1-based
+        uint8_t band = STRIP_BAND[candidate + 1];   // table is 1-based
         if (front <= (float)(NUM_BANDS - 1 - band)) continue;   // not yet
         for (int i = 0; i < MAX_DRIPS; i++) {
           if (dStrip[i] < 0) {
@@ -562,7 +508,7 @@ void paintDaliCascade() {
     }
 
     CRGB*   strip   = allStrips[dStrip[d]];
-    bool    fromTop = stripWiredFromTop[dStrip[d] + 1];
+    bool    fromTop = STRIP_WIRED_FROM_TOP[dStrip[d] + 1];
     uint8_t hue     = dHue[d];
     uint8_t tail    = dTailLen[d];
 

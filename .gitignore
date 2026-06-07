@@ -12,3 +12,7 @@
 # Python
 __pycache__/
 *.pyc
+
+# Generated at ESP32 build time (tools/gen_patterns.py, tools/gzip_assets.py)
+esp32/data/patterns.json
+esp32/data/*.gz

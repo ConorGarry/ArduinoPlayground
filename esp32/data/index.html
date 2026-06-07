@@ -40,6 +40,11 @@
       <p id="takeover-count" class="takeover-count hidden" aria-live="assertive"></p>
     </section>
 
+    <!-- ===== holding screen (someone else is at the controls) ===== -->
+    <!-- Reuses .takeover layout. Content + amber mark injected by app.js so the
+         canvas mounts at the right size, like the fire stages. -->
+    <section id="holding" class="takeover hidden" aria-live="polite"></section>
+
     <!-- ===== question card ===== -->
     <section id="card" class="card" aria-live="polite">
       <p class="label q-label">// question</p>

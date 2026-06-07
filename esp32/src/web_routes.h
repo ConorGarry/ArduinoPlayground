@@ -19,8 +19,6 @@ namespace web_routes {
 
 inline WebServer server(80);
 
-inline String  lastIp;
-inline unsigned long lastAnswerMs = 0;
 inline unsigned long totalYes = 0;
 inline unsigned long totalNo  = 0;
 
@@ -28,6 +26,54 @@ inline unsigned long totalNo  = 0;
 // questions::pickRandom and exposed via /api/state + /api/stats.
 inline bool beatActivated = false;
 inline unsigned long beatActivations = 0;
+
+// ---------- per-IP answer cooldown (#7) ----------
+// Fixed table sized to the AP client cap — no heap, no single-slot aliasing.
+// Each IP gets its own PER_IP_COOLDOWN_MS window; under multi-phone load one
+// phone's rapid taps can't reset another's, and a busy table evicts the oldest.
+struct IpStamp { uint32_t ip; unsigned long ms; };
+inline IpStamp ipStamps[8] = {};
+
+inline bool rateLimited(uint32_t ip, unsigned long now) {
+  int freeSlot = -1, oldest = 0;
+  for (int i = 0; i < 8; ++i) {
+    if (ipStamps[i].ip == ip) {
+      if (now - ipStamps[i].ms < PER_IP_COOLDOWN_MS) return true;
+      ipStamps[i].ms = now;
+      return false;
+    }
+    if (ipStamps[i].ip == 0 && freeSlot < 0) freeSlot = i;
+    if (ipStamps[i].ms < ipStamps[oldest].ms) oldest = i;
+  }
+  int slot = (freeSlot >= 0) ? freeSlot : oldest;   // evict oldest if full
+  ipStamps[slot] = { ip, now };
+  return false;
+}
+
+// ---------- single active controller (#1 / #8) ----------
+// Exactly one phone drives the LEDs at a time. Everyone else gets the holding
+// screen. The slot frees on explicit release, or when activity/heartbeat goes
+// quiet for SESSION_IDLE_MS (walk-away / locked phone). "" = free.
+inline String        activeIp;
+inline unsigned long activeLastSeenMs = 0;
+
+inline bool sessionOccupied() {
+  return activeIp.length() > 0 && (millis() - activeLastSeenMs) <= SESSION_IDLE_MS;
+}
+inline bool isActiveController(const String& ip) {
+  return ip == activeIp && (millis() - activeLastSeenMs) <= SESSION_IDLE_MS;
+}
+// Caller already holds the slot → refresh liveness and return true. Otherwise
+// send 409 busy and return false. Gates the experience endpoints.
+inline bool requireActiveController() {
+  String ip = server.client().remoteIP().toString();
+  if (isActiveController(ip)) {
+    activeLastSeenMs = millis();
+    return true;
+  }
+  server.send(409, "application/json", "{\"error\":\"busy\",\"busy\":true}");
+  return false;
+}
 
 inline String contentTypeFor(const String& path) {
   if (path.endsWith(".html")) return "text/html";
@@ -40,10 +86,29 @@ inline String contentTypeFor(const String& path) {
 }
 
 inline bool serveStatic(const String& path) {
-  if (!LittleFS.exists(path)) return false;
-  File f = LittleFS.open(path, "r");
+  // Prefer a pre-compressed sibling (tools/gzip_assets.py builds <file>.gz into
+  // data/). Cuts the connect-storm transfer ~3-4x. Falls back to the raw file.
+  String fsPath = path;
+  bool gzipped = false;
+  if (LittleFS.exists(path + ".gz")) {
+    fsPath = path + ".gz";
+    gzipped = true;
+  } else if (!LittleFS.exists(path)) {
+    return false;
+  }
+
+  File f = LittleFS.open(fsPath, "r");
   if (!f) return false;
-  server.streamFile(f, contentTypeFor(path));
+
+  // Immutable assets (js/css/svg/ico) get a long cache so returning phones and
+  // OS re-probes skip the re-download. index.html is NOT cached here — its
+  // callers set no-store so the captive flow always re-checks.
+  if (path.endsWith(".js") || path.endsWith(".css") ||
+      path.endsWith(".svg") || path.endsWith(".ico")) {
+    server.sendHeader("Cache-Control", "public, max-age=31536000, immutable");
+  }
+  if (gzipped) server.sendHeader("Content-Encoding", "gzip");
+  server.streamFile(f, contentTypeFor(path));   // MIME from the logical path
   f.close();
   return true;
 }
@@ -66,12 +131,14 @@ inline void redirectToRoot() {
 // 302 (rather than serving index inline) is the most reliable trigger for
 // iOS "Sign in to Wi-Fi" and Android full-screen captive UI.
 inline void handleCaptiveProbe() {
+#if DEBUG_HTTP
   Serial.print("[captive] probe: ");
   Serial.print(server.uri());
   Serial.print(" host=");
   Serial.print(server.hostHeader());
   Serial.print(" ip=");
   Serial.println(server.client().remoteIP().toString());
+#endif
   redirectToRoot();
 }
 
@@ -94,6 +161,7 @@ inline std::set<int> parseSeenParam(const String& s) {
 // ?seen=1,2,99 — qids already answered, excluded. All eligible excluded →
 // {"exhausted":true} signals client to trigger the finale.
 inline void handleApiQuestion() {
+  if (!requireActiveController()) return;
   std::set<int> seen = parseSeenParam(server.arg("seen"));
   JsonObject q = questions::pickRandom(beatActivated, seen.empty() ? nullptr : &seen);
   if (q.isNull()) {
@@ -217,10 +285,10 @@ inline void handleApiAnswer() {
     server.send(405, "application/json", "{\"error\":\"method\"}");
     return;
   }
+  if (!requireActiveController()) return;   // only the active phone drives LEDs
 
-  String ip = server.client().remoteIP().toString();
-  unsigned long now = millis();
-  if (ip == lastIp && (now - lastAnswerMs) < PER_IP_COOLDOWN_MS) {
+  uint32_t ip = (uint32_t) server.client().remoteIP();
+  if (rateLimited(ip, millis())) {
     server.send(429, "application/json", "{\"error\":\"slow down\"}");
     return;
   }
@@ -243,9 +311,6 @@ inline void handleApiAnswer() {
     return;
   }
 
-  lastIp = ip;
-  lastAnswerMs = now;
-
   if (questions::isRiddle(q)) {
     answerRiddle(q, answer);
     return;
@@ -263,17 +328,19 @@ inline void handleApiAnswer() {
 
 // ---------- /api/state ----------
 inline void handleApiState() {
-  JsonDocument resp;
-  resp["mode"]    = bridge::lastTeensyMode;
-  resp["pattern"] = bridge::lastTeensyPattern;
-  resp["bridge_ms_since"] = bridge::lastInboundMs == 0
+  // Fixed-shape response — built on the stack to avoid per-request heap churn
+  // (this and /api/stats are polled by every phone, all night).
+  long since = bridge::lastInboundMs == 0
       ? -1
-      : (long)(millis() - bridge::lastInboundMs);
-  resp["beatActivated"] = beatActivated;
-  resp["teensyBeat"]    = bridge::lastTeensyBeat;
-  String out;
-  serializeJson(resp, out);
-  server.send(200, "application/json", out);
+      : (long) (millis() - bridge::lastInboundMs);
+  char buf[160];
+  snprintf(buf, sizeof(buf),
+           "{\"mode\":\"%s\",\"pattern\":%d,\"bridge_ms_since\":%ld,"
+           "\"beatActivated\":%s,\"teensyBeat\":%s}",
+           bridge::lastTeensyMode, bridge::lastTeensyPattern, since,
+           beatActivated ? "true" : "false",
+           bridge::lastTeensyBeat ? "true" : "false");
+  server.send(200, "application/json", buf);
 }
 
 // ---------- /command ----------
@@ -287,6 +354,7 @@ static const char* const FIRE_RITUAL_COMMANDS[] = {
 };
 
 inline void handleCommand() {
+  if (!requireActiveController()) return;   // only the active phone drives LEDs
   String cmd = server.arg("cmd");
   if (cmd.length() == 0) {
     server.send(400, "application/json", "{\"error\":\"need cmd\"}");
@@ -303,35 +371,68 @@ inline void handleCommand() {
 }
 
 // ---------- /api/takeover ----------
-// Phone claims control from operator switches. Engages the Teensy web override
-// at the *current* pattern so nothing visibly changes. Held until an operator
-// switch moves (instant reclaim) or the safety-backstop timeout fires. If
-// pattern is unknown (-1), nothing sent — override engages on first answer.
+// Acquire the single controller slot. Granted if the slot is free, expired, or
+// already ours → {ok:true}; otherwise {ok:false,busy:true} and the client shows
+// the holding screen. On a fresh grant we engage the Teensy override at the
+// *current* pattern so nothing visibly jumps (unknown pattern -1 → nothing sent,
+// engages on first answer). Operator switches still reclaim instantly Teensy-side.
 inline void handleApiTakeover() {
+  String ip = server.client().remoteIP().toString();
+  if (sessionOccupied() && !isActiveController(ip)) {
+    server.send(200, "application/json", "{\"ok\":false,\"busy\":true}");
+    return;
+  }
+  bool fresh = !isActiveController(ip);
+  activeIp = ip;
+  activeLastSeenMs = millis();
   int p = bridge::lastTeensyPattern;
-  if (p >= 0) bridge::sendPattern(p);
-  String out = String("{\"ok\":true,\"pattern\":") + p + "}";
-  server.send(200, "application/json", out);
+  if (fresh && p >= 0) bridge::sendPattern(p);
+  char buf[48];
+  snprintf(buf, sizeof(buf), "{\"ok\":true,\"pattern\":%d}", p);
+  server.send(200, "application/json", buf);
+}
+
+// ---------- /api/heartbeat ----------
+// Active phone pings (~8 s) to keep its slot alive; returns {mine:true}.
+// Waiting phones poll it to learn when the slot frees ({mine:false,occupied:…}).
+inline void handleApiHeartbeat() {
+  String ip = server.client().remoteIP().toString();
+  if (isActiveController(ip)) {
+    activeLastSeenMs = millis();
+    server.send(200, "application/json", "{\"mine\":true}");
+    return;
+  }
+  server.send(200, "application/json",
+              sessionOccupied() ? "{\"mine\":false,\"occupied\":true}"
+                                : "{\"mine\":false,\"occupied\":false}");
+}
+
+// ---------- /api/release ----------
+// Active phone hands the slot back (end of fire ritual, or on leaving) so the
+// next person isn't waiting out the idle timeout. No-op from anyone else.
+inline void handleApiRelease() {
+  String ip = server.client().remoteIP().toString();
+  if (isActiveController(ip)) activeIp = "";
+  server.send(200, "application/json", "{\"ok\":true}");
 }
 
 // ---------- /api/stats ----------
 inline void handleApiStats() {
-  JsonDocument resp;
-  resp["yes"]             = totalYes;
-  resp["no"]              = totalNo;
-  resp["beatActivated"]   = beatActivated;
-  resp["beatActivations"] = beatActivations;
-  String out;
-  serializeJson(resp, out);
-  server.send(200, "application/json", out);
+  char buf[160];
+  snprintf(buf, sizeof(buf),
+           "{\"yes\":%lu,\"no\":%lu,\"beatActivated\":%s,\"beatActivations\":%lu}",
+           totalYes, totalNo, beatActivated ? "true" : "false", beatActivations);
+  server.send(200, "application/json", buf);
 }
 
 // ---------- root ----------
 inline void handleRoot() {
+#if DEBUG_HTTP
   Serial.print("[http] GET / host=");
   Serial.print(server.hostHeader());
   Serial.print(" ip=");
   Serial.println(server.client().remoteIP().toString());
+#endif
   sendNoCacheHeaders();
   if (!serveStatic("/index.html")) {
     server.send(500, "text/plain", "index.html missing — did you run pio run -t uploadfs?");
@@ -343,12 +444,14 @@ inline void handleNotFound() {
   String uri = server.uri();
   if (serveStatic(uri)) return;
   // Almost certainly an unregistered OS captive-portal probe.
+#if DEBUG_HTTP
   Serial.print("[captive] notFound: ");
   Serial.print(uri);
   Serial.print(" host=");
   Serial.print(server.hostHeader());
   Serial.print(" ip=");
   Serial.println(server.client().remoteIP().toString());
+#endif
   redirectToRoot();
 }
 
@@ -362,6 +465,8 @@ inline void begin() {
   server.on("/api/stats",    HTTP_GET,  handleApiStats);
   server.on("/command",      HTTP_GET,  handleCommand);
   server.on("/api/takeover", HTTP_POST, handleApiTakeover);
+  server.on("/api/heartbeat",HTTP_GET,  handleApiHeartbeat);
+  server.on("/api/release",  HTTP_POST, handleApiRelease);
 
   // Captive-portal probes — listed for logging; handleNotFound catches the rest.
   server.on("/generate_204",                       HTTP_GET, handleCaptiveProbe);  // Android
