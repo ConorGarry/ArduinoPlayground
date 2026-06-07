@@ -1,9 +1,14 @@
 /* meta sonic flux // captive portal
    a blueprint that has powered on. void background, wireframe marks,
-   lowercase voice, mono type. one accent per surface; multi-accent
-   only on the rare deliberate moment. */
+   sentence-case voice, grotesque type (v2 refresh). one accent per surface;
+   multi-accent only on the rare deliberate moment.
 
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap');
+   Offline note: the festival captive portal has no internet, so the Google
+   Fonts @import below silently fails on-site and we fall back to the native
+   system-ui sans. Hanken Grotesk only renders in dev / when a phone happens
+   to have it cached — the fallback stack is the real festival type. */
+
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 :root {
   --void:  #050507;
@@ -31,8 +36,9 @@
   --accent:      var(--mag);
   --accent-glow: var(--mag-glow);
 
-  --font-mono:    'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
-  --font-display: 'Space Grotesk', var(--font-mono);
+  --font-ui:      'Hanken Grotesk', system-ui, -apple-system, sans-serif;  /* workhorse */
+  --font-display: 'Space Grotesk', var(--font-ui);
+  --font-mono:    var(--font-ui);   /* legacy alias — de-coded to the sans workhorse */
 
   --t-1: 0.625rem;
   --t-2: 0.75rem;
@@ -44,7 +50,7 @@
   --t-9: 5.5rem;
 
   --track-display: -0.02em;
-  --track-label:    0.08em;
+  --track-label:    0.02em;   /* gentle — was 0.08em mono-loose */
 
   --s-1: 4px;
   --s-2: 8px;
@@ -80,7 +86,7 @@ html, body {
   text-size-adjust: 100%;
   min-height: 100dvh;
   overscroll-behavior: none;
-  text-transform: lowercase;       /* lowercase. no exceptions. */
+  text-transform: none;       /* sentence case (v2). proper nouns keep caps. */
 }
 
 /* the surface — void with optional particle/grid layers behind everything */
@@ -134,7 +140,6 @@ header .brand {
   letter-spacing: var(--track-label);
   color: var(--fg2);
 }
-header .brand .dot { color: var(--mag); }
 
 /* pulse indicator — small dot + label, both adopt accent on state change */
 .pulse {
@@ -145,7 +150,7 @@ header .brand .dot { color: var(--mag); }
   font-size: var(--t-2);
   letter-spacing: var(--track-label);
   color: var(--mute);
-  text-transform: lowercase;
+  text-transform: none;
 }
 .pulse::before {
   content: '';
@@ -164,21 +169,12 @@ header .brand .dot { color: var(--mag); }
 
 /* ===== shared typographic atoms ===== */
 
-.annotation {
-  font-family: var(--font-mono);
-  font-size: var(--t-1);
-  letter-spacing: var(--track-label);
-  color: var(--mute);
-  text-transform: lowercase;
-  line-height: 1;
-  margin: 0;
-}
 .label {
   font-family: var(--font-mono);
   font-size: var(--t-2);
   letter-spacing: var(--track-label);
   color: var(--mute);
-  text-transform: lowercase;
+  text-transform: none;
   line-height: 1;
   margin: 0;
 }
@@ -187,7 +183,7 @@ header .brand .dot { color: var(--mag); }
   font-weight: 700;
   letter-spacing: var(--track-display);
   line-height: 1.05;
-  text-transform: lowercase;
+  text-transform: none;
   margin: 0;
 }
 
@@ -213,10 +209,6 @@ header .brand .dot { color: var(--mag); }
 .takeover .anim-breath { animation: breath 3.5s var(--ease) infinite; }
 .takeover .title {
   font-size: var(--t-7);
-}
-.takeover .title .bracket {
-  color: var(--mag);
-  text-shadow: 0 0 8px var(--mag-glow);
 }
 .takeover-blurb {
   font-family: var(--font-mono);
@@ -252,7 +244,7 @@ button {
   font-size: var(--t-4);
   font-weight: 500;
   letter-spacing: 0.02em;
-  text-transform: lowercase;
+  text-transform: none;
   min-height: 72px;
   cursor: pointer;
   transition: transform var(--snap), background-color 180ms var(--ease),
@@ -261,26 +253,6 @@ button {
 }
 button:active { transform: scale(0.98); }
 button:disabled { opacity: 0.4; cursor: not-allowed; }
-
-button.primary {
-  background: var(--mag);
-  color: var(--void);
-  border-color: var(--mag);
-  font-weight: 600;
-  box-shadow: 0 0 0 var(--mag-glow);
-}
-button.primary:hover { box-shadow: 0 0 18px var(--mag-glow); }
-button.primary:active { box-shadow: 0 0 26px var(--mag-glow); }
-
-button.ghost {
-  background: transparent;
-  color: var(--fg1);
-  border-color: var(--rule);
-}
-button.ghost:hover {
-  color: var(--mag);
-  border-color: var(--mag);
-}
 
 button.yes {
   background: transparent;
@@ -407,7 +379,7 @@ button.choice:disabled { opacity: 0.4; cursor: not-allowed; }
   letter-spacing: 0.02em;
   outline: none;
   min-height: 64px;
-  text-transform: lowercase;
+  text-transform: none;
 }
 .riddle input:focus {
   border-color: var(--mag);
@@ -422,7 +394,7 @@ button.choice:disabled { opacity: 0.4; cursor: not-allowed; }
   letter-spacing: var(--track-label);
   color: var(--mag);
   text-align: center;
-  text-transform: lowercase;
+  text-transform: none;
 }
 .hint.success { color: var(--lime); }
 
@@ -445,7 +417,7 @@ button.choice:disabled { opacity: 0.4; cursor: not-allowed; }
   letter-spacing: var(--track-display);
   color: var(--mag);
   margin: 0;
-  text-transform: lowercase;
+  text-transform: none;
   text-wrap: balance;
 }
 .response-msg.celebrate {
@@ -459,7 +431,7 @@ button.choice:disabled { opacity: 0.4; cursor: not-allowed; }
   margin: 0;
   max-width: 24ch;
   line-height: 1.4;
-  text-transform: lowercase;
+  text-transform: none;
 }
 .look-up {
   font-family: var(--font-mono);
@@ -467,7 +439,7 @@ button.choice:disabled { opacity: 0.4; cursor: not-allowed; }
   letter-spacing: var(--track-label);
   color: var(--mute);
   margin-top: var(--s-2);
-  text-transform: lowercase;
+  text-transform: none;
 }
 .look-up .arrow { color: var(--mag); }
 
@@ -491,7 +463,7 @@ button.choice:disabled { opacity: 0.4; cursor: not-allowed; }
   color: var(--fg1);
   margin: 0;
   line-height: 1.15;
-  text-transform: lowercase;
+  text-transform: none;
 }
 .fire-mark { width: 150px; height: 150px; }
 .fire-choice-prompt {
@@ -503,7 +475,7 @@ button.choice:disabled { opacity: 0.4; cursor: not-allowed; }
   color: var(--fg1);
   margin: 0 0 var(--s-2);
   max-width: 22ch;
-  text-transform: lowercase;
+  text-transform: none;
 }
 .fire-prompt-line {
   font-family: var(--font-mono);
@@ -511,7 +483,7 @@ button.choice:disabled { opacity: 0.4; cursor: not-allowed; }
   letter-spacing: var(--track-label);
   color: var(--amber);
   margin: 0;
-  text-transform: lowercase;
+  text-transform: none;
 }
 .fire-options {
   display: flex;
@@ -532,7 +504,7 @@ button.fire-option {
   min-height: 60px;
   padding: 16px 18px;
   text-align: center;
-  text-transform: lowercase;
+  text-transform: none;
 }
 button.fire-option:hover, button.fire-option:focus {
   border-color: var(--amber);
@@ -547,7 +519,7 @@ button.fire-option:hover, button.fire-option:focus {
   color: var(--amber);
   text-shadow: 0 0 8px var(--amber-glow);
   margin: var(--s-2) 0 0;
-  text-transform: lowercase;
+  text-transform: none;
 }
 .fire-burning-sub {
   font-family: var(--font-mono);
@@ -555,7 +527,7 @@ button.fire-option:hover, button.fire-option:focus {
   letter-spacing: var(--track-label);
   color: var(--mute);
   margin: 0;
-  text-transform: lowercase;
+  text-transform: none;
 }
 .fire-burning-sub .arrow { color: var(--amber); }
 .fire-burning-tail {
@@ -564,7 +536,7 @@ button.fire-option:hover, button.fire-option:focus {
   letter-spacing: var(--track-label);
   color: var(--mute);
   margin: var(--s-2) 0 0;
-  text-transform: lowercase;
+  text-transform: none;
 }
 .goodbye-headline {
   font-family: var(--font-display);
@@ -574,7 +546,7 @@ button.fire-option:hover, button.fire-option:focus {
   color: var(--mag);
   text-shadow: 0 0 8px var(--mag-glow);
   margin: 0 0 var(--s-4);
-  text-transform: lowercase;
+  text-transform: none;
 }
 .goodbye-body {
   font-family: var(--font-mono);
@@ -583,7 +555,7 @@ button.fire-option:hover, button.fire-option:focus {
   color: var(--fg2);
   max-width: 24ch;
   margin: 0 auto;
-  text-transform: lowercase;
+  text-transform: none;
 }
 
 /* ===== footer ===== */
@@ -600,7 +572,7 @@ footer {
   color: var(--mute);
   margin: 0;
   min-height: 1.2em;
-  text-transform: lowercase;
+  text-transform: none;
 }
 .stats .pct { color: var(--mag); }
 .stats .beat { color: var(--lime); }

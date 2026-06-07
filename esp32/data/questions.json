@@ -15,7 +15,7 @@
       },
       "fail_msg": "Not quite… listen closer.",
       "max_attempts": 3,
-      "reveal_msg": "The answer was the mic. 🎤"
+      "reveal_msg": "The answer was the mic."
     }
   ],
   "questions": [

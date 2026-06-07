@@ -63,12 +63,12 @@
   const FIRE_DURATION_MS = 10000;
   const GOODBYE_MS       = 6000;
   const FIRE_OPTIONS = [
-    "a regret",
-    "someone's name",
-    "a bad year",
-    "a version of you",
-    "what they said",
-    "the thing you carry",
+    "A regret",
+    "Someone's name",
+    "A bad year",
+    "A version of you",
+    "What they said",
+    "The thing you carry",
   ];
 
   async function fetchJSON(url, opts) {
@@ -97,7 +97,7 @@
 
   function startTakeover() {
     if (takeoverTimer) return;            // already counting down
-    setPulse('loading', 'establishing link');
+    setPulse('loading', 'Establishing link');
     $btnTakeover.classList.add('hidden');
     $takeoverBlurb.classList.add('hidden');
     let n = TAKEOVER_SECONDS;
@@ -133,7 +133,7 @@
   function enterExperience() {
     hideHolding();
     $takeover.classList.add('hidden');
-    setPulse('active', 'live now');
+    setPulse('active', 'Live now');
     $card.style.display = '';
     startHeartbeat();
     loadNext();
@@ -151,13 +151,13 @@
       '<canvas class="mark anim-breath" data-msf-shape="singularity" ' +
         'data-color="#FF8A00" data-speed="0.6" aria-hidden="true"></canvas>' +
       '<div>' +
-        '<p class="display title">hold tight</p>' +
-        '<p class="takeover-blurb">someone is inside infinity right now.<br>' +
-        'you\'ll enter the moment it\'s free.</p>' +
+        '<p class="display title">Hold tight</p>' +
+        '<p class="takeover-blurb">Someone is inside Infinity right now.<br>' +
+        'You\'ll enter the moment it\'s free.</p>' +
       '</div>' +
-      '<p class="takeover-count">// waiting for the controls</p>';
+      '<p class="label">Waiting for the controls</p>';
     mountMarks($holding);
-    setPulse('loading', 'in queue');
+    setPulse('loading', 'In queue');
     if (!holdingTimer) holdingTimer = setInterval(tryAcquire, HOLDING_POLL_MS);
   }
 
@@ -226,9 +226,9 @@
       $choice.classList.add('hidden');
       $binary.classList.remove('hidden');
       // Optional per-question button labels (e.g. "Fold" / "Scrunch").
-      // CSS lowercases everything visually — content stays as authored.
-      $yes.textContent = (q.yes && q.yes.label) ? q.yes.label : 'yes';
-      $no.textContent  = (q.no  && q.no.label)  ? q.no.label  : 'no';
+      // Sentence case (v2) — content renders as authored in questions.json.
+      $yes.textContent = (q.yes && q.yes.label) ? q.yes.label : 'Yes';
+      $no.textContent  = (q.no  && q.no.label)  ? q.no.label  : 'No';
       $yes.disabled = false;
       $no.disabled  = false;
     }
@@ -243,7 +243,7 @@
       btn.type = 'button';
       btn.className = 'choice';
       btn.dataset.id = opt.id;
-      btn.textContent = '↳ ' + (opt.label || opt.id);
+      btn.textContent = (opt.label || opt.id);
       btn.addEventListener('click', () => answerChoice(opt.id), { once: false });
       $choice.appendChild(btn);
     });
@@ -321,14 +321,14 @@
   function startFireSequence() {
     cancelFireTimers();
     hideAllStages();
-    setPulse('loading', 'handover');
+    setPulse('loading', 'Handover');
     sendCommand('P:dim_ambient');
     showFireTransition();
   }
 
-  // Screen 1 — soft fade, "// one more thing", 2s hold
+  // Screen 1 — soft fade, "One more thing", 2s hold
   function showFireTransition() {
-    showFireStage('<p class="fire-transition">// one more thing</p>');
+    showFireStage('<p class="fire-transition">One more thing</p>');
     fireTimers.push(setTimeout(showFireChoice, TRANSITION_MS));
   }
 
@@ -340,8 +340,8 @@
     ).join('');
     showFireStage(
       '<canvas class="fire-mark" data-msf-shape="singularity" data-color="#FF8A00" data-speed="1.4" aria-hidden="true"></canvas>' +
-      '<p class="fire-choice-prompt">choose something to let go<br>and throw to the fire</p>' +
-      '<p class="fire-prompt-line">↳ private. nothing leaves this phone.</p>' +
+      '<p class="fire-choice-prompt">Choose something to let go<br>and throw to the fire</p>' +
+      '<p class="fire-prompt-line">Private. Nothing leaves this phone.</p>' +
       '<div class="fire-options" role="group">' + optsHtml + '</div>'
     );
     // Wire up the buttons. We don't read the data-i — the choice is private,
@@ -362,20 +362,20 @@
   function showFireBurning() {
     showFireStage(
       '<canvas class="fire-mark" data-msf-shape="singularity" data-color="#FF8A00" data-speed="2.4" aria-hidden="true"></canvas>' +
-      '<p class="fire-burning-msg">it\'s burning</p>' +
-      '<p class="fire-burning-sub">look up <span class="arrow" aria-hidden="true">↑</span></p>' +
-      '<p class="fire-burning-tail">// infinity is taking it</p>'
+      '<p class="fire-burning-msg">It\'s burning</p>' +
+      '<p class="fire-burning-sub">Look up <span class="arrow" aria-hidden="true">↑</span></p>' +
+      '<p class="fire-burning-tail">Infinity is taking it</p>'
     );
     fireTimers.push(setTimeout(showGoodbye, FIRE_DURATION_MS));
   }
 
-  // Screen 4 — "it's gone", 6s, then reset
+  // Screen 4 — "It's gone", 6s, then reset
   function showGoodbye() {
     sendCommand('P:idle_ambient');
-    setPulse('idle', 'idle');
+    setPulse('idle', 'Idle');
     showFireStage(
-      '<p class="goodbye-headline">it\'s gone</p>' +
-      '<p class="goodbye-body">thanks for playing.<br>find your friends.<br>drink some water.</p>'
+      '<p class="goodbye-headline">It\'s gone</p>' +
+      '<p class="goodbye-body">Thanks for playing.<br>find your friends.<br>drink some water.</p>'
     );
     fireTimers.push(setTimeout(resetSession, GOODBYE_MS));
   }
@@ -396,7 +396,7 @@
     $takeoverBlurb.classList.remove('hidden');
     $takeoverCount.classList.add('hidden');
     $card.style.display = 'none';
-    setPulse('idle', 'idle');
+    setPulse('idle', 'Idle');
     refreshStats();
   }
 
@@ -427,7 +427,7 @@
       showQuestion(q);
     } catch (err) {
       if (err.status === 409) { bounceToHolding(); return; }   // lost our slot
-      $q.textContent = '// no questions, check the controller';
+      $q.textContent = 'No questions — check the controller';
       lockBinary();
     }
   }
@@ -446,7 +446,7 @@
       showResponse({ msg: resp.msg });
     } catch (err) {
       if (err.status === 409) { bounceToHolding(); return; }
-      showResponse({ msg: '// one sec' });
+      showResponse({ msg: 'One sec' });
     }
     // Response stays until the user taps "↳ and i go at it again".
   }
@@ -465,7 +465,7 @@
       showResponse({ msg: resp.msg });
     } catch (err) {
       if (err.status === 409) { bounceToHolding(); return; }
-      showResponse({ msg: '// one sec' });
+      showResponse({ msg: 'One sec' });
     }
   }
 
@@ -486,10 +486,10 @@
 
       if (resp.ok) {
         // Correct. Lime = live / urgent — the beat is on.
-        setPulse('live', 'beat is on');
+        setPulse('live', 'Beat is on');
         showResponse({
-          msg: resp.msg || "you've activated the beat",
-          sub: 'the lights now hear what you hear',
+          msg: resp.msg || "You've activated the beat",
+          sub: 'The lights now hear what you hear',
           celebrate: true,
         });
       } else {
@@ -498,11 +498,11 @@
         if (attemptsLeft <= 0) {
           // Out of attempts — reveal and wait for them to tap onward.
           showResponse({
-            msg: current.reveal_msg || 'the answer was the mic',
+            msg: current.reveal_msg || 'The answer was the mic',
           });
         } else {
           $riddleHint.textContent =
-            (resp.msg || 'not quite') +
+            (resp.msg || 'Not quite') +
             '  ·  ' + attemptsLeft + ' attempt' + (attemptsLeft === 1 ? '' : 's') + ' left';
           $riddleText.value = '';
           unlockRiddle();
@@ -512,7 +512,7 @@
       }
     } catch (err) {
       if (err.status === 409) { bounceToHolding(); return; }
-      $riddleHint.textContent = '// one sec';
+      $riddleHint.textContent = 'One sec';
       unlockRiddle();
       inFlight = false;
     }
@@ -555,7 +555,7 @@
   // flow does not start until the user taps through and the 3s countdown ends.
   $card.style.display = 'none';
   $takeover.classList.remove('hidden');
-  setPulse('idle', 'idle');
+  setPulse('idle', 'Idle');
   refreshStats();
   setInterval(refreshStats, 10000);
 })();

@@ -29,6 +29,8 @@ Usage:
     python3 tools/dev_server.py --open       # also open in default browser
 """
 
+from __future__ import annotations  # defer type-hint eval → runs on Python 3.7+
+
 import argparse
 import json
 import random
@@ -56,7 +58,7 @@ CONTENT_TYPES = {
 # Mirrors questions.h::RIDDLE_PREFER_PCT
 RIDDLE_PREFER_PCT = 70
 # Mirrors config.h::PER_IP_COOLDOWN_MS
-PER_IP_COOLDOWN_MS = 2000
+PER_IP_COOLDOWN_MS = 500
 # Mirrors config.h::SESSION_IDLE_MS — controller slot frees after this much
 # inactivity / no heartbeat.
 SESSION_IDLE_MS = 45000

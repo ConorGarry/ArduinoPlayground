@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#050507">
-  <title>infinity // meta sonic flux</title>
+  <title>Infinity · Meta Sonic Flux</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -13,8 +13,8 @@
     <canvas class="bg-particles" data-msf-particles data-color="#F2EFE9"></canvas>
 
     <header>
-      <span class="brand">meta_sonic_flux<span class="dot"> //</span></span>
-      <span id="pulse" class="pulse" data-state="idle">idle</span>
+      <span class="brand">Meta Sonic Flux</span>
+      <span id="pulse" class="pulse" data-state="idle">Idle</span>
     </header>
 
     <!-- ===== takeover / idle ===== -->
@@ -30,12 +30,12 @@
         aria-hidden="true"></canvas>
 
       <div>
-        <p class="display title" id="installation-name">infinity</p>
-        <p class="takeover-blurb" id="takeover-blurb">by meta sonic flux</p>
+        <p class="display title" id="installation-name">Infinity</p>
+        <p class="takeover-blurb" id="takeover-blurb">Let's get melty.</p>
       </div>
 
       <button id="btn-takeover" type="button" class="takeover-btn">
-        {connect} // take the controls
+        Take the controls
       </button>
       <p id="takeover-count" class="takeover-count hidden" aria-live="assertive"></p>
     </section>
@@ -47,13 +47,13 @@
 
     <!-- ===== question card ===== -->
     <section id="card" class="card" aria-live="polite">
-      <p class="label q-label">// question</p>
-      <p id="question" class="question">// loading</p>
+      <p class="label q-label">Question</p>
+      <p id="question" class="question">Loading</p>
 
       <!-- binary -->
       <div id="binary-input" class="buttons">
-        <button id="btn-yes" type="button" class="yes" disabled>yes</button>
-        <button id="btn-no"  type="button" class="no"  disabled>no</button>
+        <button id="btn-yes" type="button" class="yes" disabled>Yes</button>
+        <button id="btn-no"  type="button" class="no"  disabled>No</button>
       </div>
 
       <!-- choice (N options, populated by app.js) -->
@@ -68,20 +68,20 @@
                autocapitalize="off"
                autocorrect="off"
                spellcheck="false"
-               placeholder="type your answer"
+               placeholder="Type your answer"
                aria-label="riddle answer">
-        <button id="btn-submit" type="submit" class="submit">{answer}</button>
+        <button id="btn-submit" type="submit" class="submit">Answer</button>
         <p id="riddle-hint" class="hint" aria-live="polite"></p>
       </form>
     </section>
 
     <!-- ===== response ===== -->
     <section id="response" class="response hidden" aria-live="polite">
-      <p class="label">// response</p>
+      <p class="label">Response</p>
       <p id="response-msg" class="response-msg"></p>
       <p id="response-sub" class="response-sub hidden"></p>
-      <p class="look-up">look up <span class="arrow" aria-hidden="true">↑</span></p>
-      <button id="btn-again" type="button" class="again">↳ and i go at it again</button>
+      <p class="look-up">Look up <span class="arrow" aria-hidden="true">↑</span></p>
+      <button id="btn-again" type="button" class="again">And I go at it again</button>
     </section>
 
     <!-- ===== fire stage (innerHTML swapped by app.js) ===== -->

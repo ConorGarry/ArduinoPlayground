@@ -11,8 +11,12 @@ static const int   BRIDGE_RX_PIN  = 16;  // ESP32 RX2 <- Teensy TX (Pin 17)
 static const int   BRIDGE_TX_PIN  = 17;  // ESP32 TX2 -> Teensy RX (Pin 16 via mod)
 static const long  BRIDGE_BAUD    = 115200;
 
-// Spec suggests 5 s; 2 s is friendlier on the bench.
-static const unsigned long PER_IP_COOLDOWN_MS = 2000;
+// Per-answer throttle. Just a double-tap / machine-gun guard now — the
+// single-controller lock already means only the active phone can answer, and
+// the client's inFlight flag blocks double-submitting a question. Kept low so
+// it never fires during normal play (2 s used to surface as a cryptic
+// "One sec" when answering two questions quickly).
+static const unsigned long PER_IP_COOLDOWN_MS = 500;
 
 // One-at-a-time controller: the active phone's slot frees if no activity or
 // heartbeat arrives for this long (covers walk-aways / locked phones). The

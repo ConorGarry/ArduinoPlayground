@@ -75,8 +75,22 @@
       : parseFloat(canvas.getAttribute('data-speed') || '1');
     var glow = opts.glow !== false;
     var lineW = opts.lineWidth || 1.4;
+    var cycle = opts.cycle || canvas.hasAttribute('data-cycle');
+    var cyclePeriod = parseFloat(opts.cyclePeriod || canvas.getAttribute('data-cycle') || '14') || 14;
     var ctx = canvas.getContext('2d');
     var dpr = Math.min(global.devicePixelRatio || 1, 2);
+
+    // spectrum the cycle drifts through, in time (never a spatial gradient)
+    var SPECTRUM = [[255,0,153],[0,229,255],[184,255,0],[255,138,0],[124,58,237]];
+    function cycledColor(t) {
+      var f = (t / cyclePeriod) % 1; if (f < 0) f += 1;
+      var n = SPECTRUM.length, x = f * n, i = Math.floor(x), k = x - i;
+      var a = SPECTRUM[i % n], b = SPECTRUM[(i + 1) % n];
+      var r = Math.round(a[0] + (b[0] - a[0]) * k);
+      var g = Math.round(a[1] + (b[1] - a[1]) * k);
+      var bl = Math.round(a[2] + (b[2] - a[2]) * k);
+      return 'rgb(' + r + ',' + g + ',' + bl + ')';
+    }
 
     var geo;
     if (shape === 'dodeca') geo = buildDodeca();
@@ -110,6 +124,7 @@
     function frame(now) {
       var t = (now - t0) / 1000;
       var w = dim.w, h = dim.h, R = Math.min(w, h);
+      if (cycle && !REDUCED) color = cycledColor(t);
       ctx.clearRect(0, 0, w, h);
       ctx.strokeStyle = color;
       ctx.fillStyle = color;
