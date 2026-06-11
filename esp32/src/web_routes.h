@@ -89,10 +89,8 @@ inline bool serveStatic(const String& path) {
   // Prefer a pre-compressed sibling (tools/gzip_assets.py builds <file>.gz into
   // data/). Cuts the connect-storm transfer ~3-4x. Falls back to the raw file.
   String fsPath = path;
-  bool gzipped = false;
   if (LittleFS.exists(path + ".gz")) {
     fsPath = path + ".gz";
-    gzipped = true;
   } else if (!LittleFS.exists(path)) {
     return false;
   }
@@ -107,7 +105,9 @@ inline bool serveStatic(const String& path) {
       path.endsWith(".svg") || path.endsWith(".ico")) {
     server.sendHeader("Cache-Control", "public, max-age=31536000, immutable");
   }
-  if (gzipped) server.sendHeader("Content-Encoding", "gzip");
+  // No manual Content-Encoding here: streamFile() auto-adds it for *.gz file
+  // names (WebServer::_streamFileCore). Sending it ourselves too doubles the
+  // header — "gzip, gzip" — and Chrome hangs on a blank page forever.
   server.streamFile(f, contentTypeFor(path));   // MIME from the logical path
   f.close();
   return true;

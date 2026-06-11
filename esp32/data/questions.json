@@ -34,7 +34,7 @@
         { "id": "monet",    "label": "Monet",    "msg": "Light as it ripples through water.",         "pattern": 16 },
         { "id": "picasso",  "label": "Picasso",  "msg": "Thirty perspectives. All in one.",         "pattern": 17 },
         { "id": "dali",     "label": "Dalí",     "msg": "Time slips. Try not to notice.",         "pattern": 18 },
-        { "id": "davinci",  "label": "da Vinci", "msg": "Drew this one twice. The first was better.", "pattern": 19 }
+        { "id": "boccioni", "label": "Boccioni",  "msg": "Everything is moving. Even the still bits.",  "pattern": 19 }
       ]
     },
     {
